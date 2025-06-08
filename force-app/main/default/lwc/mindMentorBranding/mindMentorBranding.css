@@ -1,0 +1,38 @@
+.header-container {
+    padding: var(--lwc-squareIconUtilityMedium, 20px);
+    background: linear-gradient(90deg, var(--lwc-colorBackgroundAlt, #f5f7fa) 0%, #fbeee6 100%);
+    border-radius: var(--lwc-borderRadiusLarge, 8px);
+    box-shadow: var(--lwc-shadowDropDown, 0px 4px 10px rgba(0, 0, 0, 0.1));
+}
+
+.logo {
+    margin-right: var(--lwc-squareIconUtilityMedium, 20px);
+}
+
+.header-text {
+    color: var(--lwc-colorTextInverse, white);
+}
+
+.app-name {
+    font-size: 2.5rem;
+    font-weight: 900;
+    color: #FF4136;
+    letter-spacing: 2px;
+    font-family: 'Segoe UI', 'Roboto', 'Arial', sans-serif;
+    text-shadow:
+        0 3px 12px rgba(0,0,0,0.18), /* Stronger, more visible shadow */
+        0 1px 0 #fff;
+    margin-bottom: 0.15em;
+}
+
+.tagline {
+    font-size: fontSize7;
+    font-weight: 500;
+    color: #FF8833;
+    font-family: 'Segoe UI', 'Roboto', 'Arial', sans-serif;
+    letter-spacing: 1.2px;
+    opacity: 0.98;
+    text-shadow:
+        0 2px 8px rgba(0,0,0,0.15), /* Stronger, more visible shadow */
+        0 1px 0 #fff;
+}
