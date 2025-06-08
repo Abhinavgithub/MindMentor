@@ -1,0 +1,141 @@
+---
+description: Use this rule while doing any sort of salesforce developement or customization
+globs: 
+alwaysApply: false
+---
+# Salesforce Development Rules
+
+## Apex Development
+- Use proper SOQL injection prevention by using bind variables
+- Follow governor limits and bulkify code
+- Use proper error handling with try-catch blocks
+- Implement proper sharing rules and security
+- Use proper test coverage (minimum 75%)
+- Follow naming conventions:
+  - Classes: PascalCase
+  - Methods: camelCase
+  - Variables: camelCase
+  - Constants: UPPER_SNAKE_CASE
+
+## Lightning Web Components (LWC)
+- Use proper decorators (@api, @track, @wire)
+- Follow component lifecycle methods
+- Use proper event handling
+- Implement proper error boundaries
+- Follow naming conventions:
+  - Components: kebab-case
+  - Methods: camelCase
+  - Properties: camelCase
+
+## Visualforce
+- Use proper security attributes
+- Implement proper error handling
+- Use proper styling and responsive design
+- Follow naming conventions:
+  - Pages: PascalCase
+  - Components: PascalCase
+
+## SOQL Best Practices
+- Use selective queries
+- Avoid SOQL in loops
+- Use proper indexing
+- Use proper relationship queries
+- Use proper field lists
+
+## Test Classes
+- Use @TestSetup for common test data
+- Use proper test data creation
+- Test both positive and negative scenarios
+- Use proper assertions
+- Follow naming convention: ClassNameTest
+
+## Deployment
+- Use proper change sets
+- Use proper version control
+- Use proper deployment tools
+- Follow proper deployment process
+- Use proper validation rules
+
+## Security
+- Use proper field-level security
+- Use proper object-level security
+- Use proper sharing rules
+- Use proper validation rules
+- Use proper encryption
+
+## Performance
+- Use proper indexing
+- Use proper caching
+- Use proper batch processing
+- Use proper async processing
+- Use proper governor limits
+
+## Code Organization
+- Use proper package structure
+- Use proper class organization
+- Use proper method organization
+- Use proper documentation
+- Use proper comments
+
+## Best Practices
+- Use proper error handling
+- Use proper logging
+- Use proper debugging
+- Use proper testing
+- Use proper documentation
+
+## Common Patterns
+- Use proper singleton pattern
+- Use proper factory pattern
+- Use proper observer pattern
+- Use proper strategy pattern
+- Use proper command pattern
+
+## Tools
+- Use proper IDE
+- Use proper deployment tools
+- Use proper testing tools
+- Use proper debugging tools
+- Use proper documentation tools
+
+## Documentation
+- Use proper inline documentation
+- Use proper class documentation
+- Use proper method documentation
+- Use proper variable documentation
+- Use proper constant documentation
+
+## Version Control
+- Use proper branching strategy
+- Use proper commit messages
+- Use proper pull requests
+- Use proper code review
+- Use proper merge strategy
+
+## Development Process
+- Use proper development process
+- Use proper testing process
+- Use proper deployment process
+- Use proper documentation process
+- Use proper maintenance process
+
+## Maintenance
+- Use proper code cleanup
+- Use proper performance optimization
+- Use proper security updates
+- Use proper documentation updates
+- Use proper testing updates
+
+## Troubleshooting
+- Use proper error handling
+- Use proper logging
+- Use proper debugging
+- Use proper testing
+- Use proper documentation
+
+## Resources
+- Use proper documentation
+- Use proper training
+- Use proper support
+- Use proper community
+- Use proper tools
