@@ -43,3 +43,10 @@ $RECYCLE.BIN/
 **/__pycache__/
 **/.venv/
 **/venv/
+
+# Ignore package.xml in manifest directory
+manifest/package.xml
+
+# Ignore scripts/apex and scripts/soql folders
+scripts/apex/
+scripts/soql/
