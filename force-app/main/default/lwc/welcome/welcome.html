@@ -1,0 +1,66 @@
+<!--
+  @description       : 
+  @author            : Abhinav Singh
+  @group             : 
+  @last modified on  : 08-03-2025
+  @last modified by  : Abhinav Singh
+-->
+<template>
+    <div class="slds-var-p-around_medium">
+        <!-- Personalized Welcome Section -->
+        <div class="slds-box slds-theme_shade slds-var-m-bottom_medium">
+            <div class="slds-grid slds-grid_vertical-align-center">
+                <div class="slds-col slds-size_1-of-12">
+                    <lightning-avatar variant="circle" src={userAvatar} initials="G"
+                        fallback-icon-name="standard:person_account" alternative-text="Guest"
+                        class="slds-align_absolute-center"></lightning-avatar>
+                </div>
+                <div class="slds-col slds-size_11-of-12">
+                    <h1 class="slds-text-heading_large">{personalizedMessage}</h1>
+                    <p class="slds-text-body_regular slds-var-m-top_small">
+                        We're excited to have you here and support your mental wellness journey.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- App Introduction Section -->
+        <div class="slds-box slds-theme_default">
+            <div class="slds-grid slds-grid_vertical">
+                <div class="slds-col">
+                    <h2 class="slds-text-heading_medium slds-var-m-bottom_medium">
+                        <lightning-icon icon-name="standard:skill" size="small"
+                            class="slds-var-m-right_x-small"></lightning-icon>
+                        {appIntroduction.title}
+                    </h2>
+
+                    <p class="slds-text-body_regular slds-var-m-bottom_medium">
+                        {appIntroduction.description}
+                    </p>
+
+                    <div class="slds-var-m-top_medium">
+                        <h3 class="slds-text-heading_small slds-var-m-bottom_small">What you can do with Mind Mentor:
+                        </h3>
+                        <ul class="slds-list_dotted">
+                            <template for:each={appIntroduction.features} for:item="feature">
+                                <li key={feature} class="slds-list__item slds-var-m-bottom_x-small">
+                                    <lightning-icon icon-name="utility:check" size="x-small"
+                                        class="slds-var-m-right_x-small slds-text-color_success"></lightning-icon>
+                                    {feature}
+                                </li>
+                            </template>
+                        </ul>
+                    </div>
+
+                    <div class="slds-var-m-top_large slds-text-align_center">
+                        <lightning-button variant="brand" label="Get Started" class="slds-var-m-right_small"
+                            onclick={handleGetStarted}>
+                        </lightning-button>
+                        <lightning-button variant="neutral" label="Learn More">
+                        </lightning-button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
