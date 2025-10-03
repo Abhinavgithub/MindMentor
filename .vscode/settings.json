@@ -4,5 +4,6 @@
     "**/bower_components": true,
     "**/.sfdx": true
   },
-  "salesforce.einsteinForDevelopers.advanced": {}
+  "salesforce.einsteinForDevelopers.advanced": {},
+  "xml.preferences.showSchemaDocumentationType": "none"
 }
