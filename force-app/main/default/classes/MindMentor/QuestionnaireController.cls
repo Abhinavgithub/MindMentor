@@ -25,6 +25,34 @@ public without sharing class QuestionnaireController {
         }
     }
 
+    //Write a method to get Questions and question options from the Question object and  MM_Question_Option__c based on the nextQuestionId from the ResponseSessionDTO
+    //and return the question text and options as a JSON string 
+    @AuraEnabled
+    public static string getQuestions(){
+        try {
+            CheckObjectReadAccess.checkQuestionAccess();
+            CheckObjectReadAccess.checkQuestionOptionAccess();
+            List<MM_Question__c> questions = [SELECT Id, MM_Question_Text__c, (SELECT Id, MM_Option_Text__c FROM MM_Question_Options__r) FROM MM_Question__c LIMIT 5];
+            List<Map<String, Object>> questionList = new List<Map<String, Object>>();
+            for (MM_Question__c q : questions) {
+                Map<String, Object> questionMap = new Map<String, Object>();
+                questionMap.put('Id', q.Id);
+                questionMap.put('QuestionText', q.MM_Question_Text__c);
+                List<Map<String, String>> optionsList = new List<Map<String, String>>();
+                for (MM_Question_Option__c opt : q.MM_Question_Options__r) {
+                    Map<String, String> optionMap = new Map<String, String>();      
+                    optionMap.put('Id', opt.Id);
+                    optionMap.put('OptionText', opt.MM_Option_Text__c); 
+                    optionsList.add(optionMap);
+                }
+                questionMap.put('Options', optionsList);
+                questionList.add(questionMap);
+            }   
+            return JSON.serialize(questionList);        
+        } catch (Exception e) {
+            throw new AuraHandledException(e.getMessage());
+        }
+    }
     /**
      * @description Retrieves the ContactId of the current user.
      * @return The ContactId of the current user.

@@ -36,4 +36,21 @@ public with sharing class CheckObjectReadAccess {
             throw new AuraHandledException('Insufficient access to MM_User_Response__c object.');
         }
     }
+    /**
+     * @description Checks if the current user has read access to the MM_Question__c object.
+     */
+    public static void checkQuestionAccess() {
+        if (!Schema.sObjectType.MM_Question__c.isAccessible()) {
+            throw new AuraHandledException('Insufficient access to MM_Question__c object.');
+        }
+    }
+
+    /**
+     * @description Checks if the current user has read access to the MM_Question_Option__c object.
+     */
+    public static void checkQuestionOptionAccess() {
+        if (!Schema.sObjectType.MM_Question_Option__c.isAccessible()) {
+            throw new AuraHandledException('Insufficient access to MM_Question_Option__c object.');
+        }
+    }
 }
