@@ -13,53 +13,67 @@ public without sharing class QuestionnaireController {
      * @throws AuraHandledException if access is insufficient or another error occurs.
      */
     @AuraEnabled(cacheable=false)
-    public static ResponseSessionDTO startAssessment(){
+    public static ResponseSessionDTO getSession(Id userId){
         try {
             CheckObjectReadAccess.checkUserAccess();
-            String contactId = getContactId();
+            String contactId = getContactId(userId);
+            System.debug('Contact Id: ' + contactId);
             CheckObjectReadAccess.checkSessionAccess();
             MM_Response_Session__c respSession = getLatestInProgressSession(contactId);
-            return handleSession(respSession);
+            System.debug('Response Session: ' + respSession);
+            return handleSession(respSession, contactId);
         } catch (Exception e) {
-            throw new AuraHandledException(e.getMessage());
+            throw new AuraHandledException('Unable to retrieve active Session: ' + e.getMessage());
         }
     }
 
-    //Write a method to get Questions and question options from the Question object and  MM_Question_Option__c based on the nextQuestionId from the ResponseSessionDTO
-    //and return the question text and options as a JSON string 
-    @AuraEnabled
+    /**
+     * @description Retrieves questions and their options from the Question object and MM_Question_Option__c,
+     * and returns the question text and options as a JSON string.
+     * @return A JSON string containing a list of questions and their options.
+     * @throws AuraHandledException if access is insufficient or another error occurs.
+     */
+    @AuraEnabled(cacheable = false)
     public static string getQuestions(){
         try {
             CheckObjectReadAccess.checkQuestionAccess();
             CheckObjectReadAccess.checkQuestionOptionAccess();
-            List<MM_Question__c> questions = [SELECT Id, MM_Question_Text__c, (SELECT Id, MM_Option_Text__c FROM MM_Question_Options__r) FROM MM_Question__c LIMIT 5];
+            List<MM_Question__c> questions = [Select Id,MM_QuestionText__c,MM_Type__c,MM_Order__c,MM_Category__c,MM_Weight__c,MM_Section__c,MM_Crisis_Flag__c,MM_Immediate_Intervention__c,(Select Id,MM_Option_Text__c from Question_Options__r) from MM_Question__c order by MM_Order__c limit 5];
             List<Map<String, Object>> questionList = new List<Map<String, Object>>();
             for (MM_Question__c q : questions) {
                 Map<String, Object> questionMap = new Map<String, Object>();
                 questionMap.put('Id', q.Id);
-                questionMap.put('QuestionText', q.MM_Question_Text__c);
+                questionMap.put('QuestionText', q.MM_QuestionText__c);
+                questionMap.put('Type', q.MM_Type__c);
+                questionMap.put('Order', q.MM_Order__c);
                 List<Map<String, String>> optionsList = new List<Map<String, String>>();
-                for (MM_Question_Option__c opt : q.MM_Question_Options__r) {
-                    Map<String, String> optionMap = new Map<String, String>();      
+                for (MM_Question_Option__c opt : q.Question_Options__r) {
+                    Map<String, String> optionMap = new Map<String, String>();
                     optionMap.put('Id', opt.Id);
-                    optionMap.put('OptionText', opt.MM_Option_Text__c); 
+                    optionMap.put('OptionText', opt.MM_Option_Text__c);
                     optionsList.add(optionMap);
                 }
                 questionMap.put('Options', optionsList);
                 questionList.add(questionMap);
-            }   
-            return JSON.serialize(questionList);        
+            }
+            return JSON.serialize(questionList);
         } catch (Exception e) {
-            throw new AuraHandledException(e.getMessage());
+            throw new AuraHandledException('Unable to retreive Questions: ' + e.getMessage());
         }
     }
+
     /**
      * @description Retrieves the ContactId of the current user.
+     * @param userId The Id of the user whose ContactId is to be retrieved.
      * @return The ContactId of the current user.
      */
-    private static String getContactId() {
-        CheckObjectReadAccess.checkUserAccess();
-        return [SELECT ContactId FROM User WHERE Id = :UserInfo.getUserId()].ContactId;
+    private static Id getContactId(Id userId) {
+    // Query the User record to find the associated Contact ID
+    CheckObjectReadAccess.checkUserAccess();
+    User currentUser = [SELECT ContactId FROM User WHERE Id = :userId LIMIT 1];
+    // Return the Contact ID
+    // This will be null if the user is not associated with a contact
+    return currentUser.ContactId;
     }
 
     /**
@@ -70,7 +84,7 @@ public without sharing class QuestionnaireController {
     private static MM_Response_Session__c getLatestInProgressSession(String contactId) {
         CheckObjectReadAccess.checkSessionAccess();
         List<MM_Response_Session__c> sessions = [
-            SELECT Id, MM_Status__c
+            SELECT Id, MM_Status__c, MM_User__c
             FROM MM_Response_Session__c
             WHERE MM_User__c = :contactId AND MM_Status__c = :IN_PROGRESS
             ORDER BY CreatedDate DESC
@@ -79,26 +93,25 @@ public without sharing class QuestionnaireController {
         return sessions.isEmpty() ? null : sessions[0];
     }
 
-    /**
-     * @description Handles the logic for an in-progress session: returns the session Id if not completed,
-     * or marks the session as completed if the max number of questions is reached.
-     * @param respSession The in-progress MM_Response_Session__c.
-     * @return The session Id if assessment is still in progress, otherwise null.
-     */
-    private static ResponseSessionDTO handleSession(MM_Response_Session__c respSession) {
+        /**
+         * @description Handles the logic for an in-progress session: returns the session Id if not completed,
+         * or marks the session as completed if the max number of questions is reached.
+         * @param respSession The in-progress MM_Response_Session__c.
+         * @param contactId The ContactId associated with the session.
+         * @return The session Id if assessment is still in progress, otherwise null.
+         */
+        private static ResponseSessionDTO handleSession(MM_Response_Session__c respSession, String contactId) {
         if (respSession == null) {
-            return null;
+            return handleNewSession(createResponseSession(contactId),null);
         }
         CheckObjectReadAccess.checkUserResponseAccess();
         List<MM_User_Response__c> userResponse = [
-            SELECT Id FROM MM_User_Response__c
+            SELECT Id, MM_Question__r.Id
+            FROM MM_User_Response__c
             WHERE MM_Response_Session__c = :respSession.Id
             ORDER BY CreatedDate DESC
         ];
         Integer maxQuestions = Integer.valueOf(MAX_QUESTIONS);
-        if (userResponse.isEmpty()) {
-            return handleNewSession(createResponseSession(respSession.MM_User__c), null);
-        }
 
         if (userResponse.size() < maxQuestions){
             return handleNewSession(respSession, userResponse);
@@ -126,18 +139,18 @@ public without sharing class QuestionnaireController {
     /**
      * @description Data Transfer Object for returning session details to the client.
      */
-    public Class ResponseSessionDTO{
-        public String sessionId;
-        public String answeredQuestionsCount;
-        public String totalQuestionsCount;
-        public String nextQuestionId;
-        public String status;
+    public class ResponseSessionDTO{
+        @AuraEnabled public String sessionId;
+        @AuraEnabled public String answeredQuestionsCount;
+        @AuraEnabled public String totalQuestionsCount;
+        @AuraEnabled public String nextQuestionId;
+        @AuraEnabled public String status;
     }
 
     private static ResponseSessionDTO handleNewSession(MM_Response_Session__c newSession, List<MM_User_Response__c> lastResponse) {
         ResponseSessionDTO dto = new ResponseSessionDTO();
         dto.sessionId = newSession.Id;
-        dto.answeredQuestionsCount = '0';
+        dto.answeredQuestionsCount = (lastResponse!=null && lastResponse.size()>0) ? String.valueOf(lastResponse.size()) : '0';
         dto.totalQuestionsCount = MAX_QUESTIONS;
         dto.nextQuestionId = (lastResponse!=null && lastResponse.size()>0) ? lastResponse[lastResponse.size() - 1].MM_Question__r.Id : null;
         dto.status = newSession.MM_Status__c;

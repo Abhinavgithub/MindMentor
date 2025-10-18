@@ -1,0 +1,16 @@
+<!--
+  @description       : 
+  @author            : Abhinav Singh
+  @group             : 
+  @last modified on  : 10-18-2025
+  @last modified by  : Abhinav Singh
+-->
+<template>
+  <template if:false={isGuest}>
+    <span id="logoutButtonLabel" class="slds-assistive-text">{logoutText}</span>
+    <button class="slds-button slds-button_neutral" type="button" aria-labelledby="logoutButtonLabel"
+      aria-label={logoutText} onclick={handleLogout}>
+      {logoutText}
+    </button>
+  </template>
+</template>
