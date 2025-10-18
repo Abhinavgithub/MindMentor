@@ -25,47 +25,46 @@ export default class Questionnaire extends LightningElement {
         return this.currentQuestionIndex === this.questions.length - 1;
     }
 
-    startAssesment(){
-        this.userId = '005gK000003Tnq1QAC';//for testing purpose only, remove later
+    async startAssesment() {
+        this.userId = '005gK000003Tnq1QAC'; //for testing purpose only, remove later
         console.log('Start Assesment Clicked');
         console.log('Current User ID:', this.userId);
         this.loadAssessment = true;
 
-        // Call Apex method to get session details
-        getSession({ userId: this.userId })
-            .then((result) => {
-                console.log('Session result: ', result);
-                this.currentSessionId = result?.sessionId || null;
-                console.log('Session started: ', this.currentSessionId);
-            })
-            .catch((error) => {
-                const msg = error?.body?.message || error?.message || JSON.stringify(error);
-                console.error('Error starting session: ', msg);
-            });
-       
+        try {
+            // Call Apex method to get session details
+            const sessionResult = await getSession({ userId: this.userId });
+            console.log('Session result: ', sessionResult);
+            this.currentSessionId = sessionResult?.sessionId || null;
+            console.log('Session started: ', this.currentSessionId);
+        } catch (error) {
+            const msg = error?.body?.message || error?.message || JSON.stringify(error);
+            console.error('Error starting session: ', msg);
+        }
 
-        getQuestions()
-            .then((result) => {
-                console.log('Questions fetched: ', result);
-                // The result from Apex is likely a JSON string, so we need to parse it first.
-                const parsedResult = JSON.parse(result);
-                console.log('No of questions: ',  parsedResult.length);
-                this.questions = parsedResult.map(q => {
-                    // Map options to the format required by lightning-radio-group
-                    const options = q.Options.map(opt => ({
-                        label: opt.OptionText,
-                        value: opt.Id
-                    }));
-                    console.log('Options: ', options);
-                    const combinedLabel = `${q.Order}. ${q.QuestionText}`;
-                    // Return a new object with the original question data and the formatted options
-                    console.log('Mapped Question: ', { ...q, options, combinedLabel });
-                    return { ...q, options, combinedLabel };
-                });
-            })
-            .catch((error) => {
-                console.error('Error fetching questions: ', error.message);
+        try {
+            // Call Apex method to get questions
+            const questionsResult = await getQuestions();
+            console.log('Questions fetched: ', questionsResult);
+            
+            // The result from Apex is likely a JSON string, so we need to parse it first.
+            const parsedResult = JSON.parse(questionsResult);
+            console.log('No of questions: ', parsedResult.length);
+            this.questions = parsedResult.map(q => {
+                // Map options to the format required by lightning-radio-group
+                const options = q.Options.map(opt => ({
+                    label: opt.OptionText,
+                    value: opt.Id
+                }));
+                console.log('Options: ', options);
+                const combinedLabel = `${q.Order}. ${q.QuestionText}`;
+                // Return a new object with the original question data and the formatted options
+                console.log('Mapped Question: ', { ...q, options, combinedLabel });
+                return { ...q, options, combinedLabel };
             });
+        } catch (error) {
+            console.error('Error fetching questions: ', error.message);
+        }
         console.log('loadAssessment: ', this.loadAssessment);
     }
 
