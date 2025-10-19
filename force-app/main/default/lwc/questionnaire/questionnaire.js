@@ -1,6 +1,7 @@
 import { LightningElement } from 'lwc';
 import getQuestions from '@salesforce/apex/QuestionnaireController.getQuestions';
 import getSession from '@salesforce/apex/QuestionnaireController.getSession';
+import createUserResponse from '@salesforce/apex/QuestionnaireController.createUserResponse';
 import Id from '@salesforce/user/Id';
 export default class Questionnaire extends LightningElement {
     userId = Id; // Property to hold the user's ID
@@ -72,7 +73,9 @@ export default class Questionnaire extends LightningElement {
         const questionId = event.target.name;
         const selectedValue = event.target.value;
         this.selectedAnswers[questionId] = selectedValue;
-        console.log('Selected Answers: ', this.selectedAnswers);
+        console.log('Selected Answers: ', JSON.stringify(this.selectedAnswers));
+        console.log('Question ID: ', questionId, ' Selected Value: ', selectedValue);
+        console.log('Answer for current question: ', this.selectedAnswers[this.currentQuestion.Id]);
     }
 
     handlePrevious() {
@@ -81,7 +84,18 @@ export default class Questionnaire extends LightningElement {
         }
     }
 
-    handleNext() {
+    async handleNext() {
+        console.log('Current Question Index: ', this.currentQuestionIndex);
+        console.log('Current Question ID: ', this.currentQuestion.Id);
+        console.log('Selected Answers: ', JSON.stringify(this.selectedAnswers));
+        console.log('answer for current question: ', this.selectedAnswers[this.currentQuestion.Id]);
+        const userAnswer = await createUserResponse({
+            sessionId: this.currentSessionId,
+            questionId: this.currentQuestion.Id,
+            answerId: this.selectedAnswers[this.currentQuestion.Id],
+            answerText: ''
+        });
+        console.log('User Answer saved: ', userAnswer);
         if (this.currentQuestionIndex < this.questions.length - 1) {
             this.currentQuestionIndex++;
         }
