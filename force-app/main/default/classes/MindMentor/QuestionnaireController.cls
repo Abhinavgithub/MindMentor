@@ -17,6 +17,18 @@ public without sharing class QuestionnaireController {
     @AuraEnabled(cacheable=false)
     public static String createUserResponse(Id sessionId, Id questionId, Id answerId,String answerText){
         try {
+            //add a SOQL query to check if the userResponse already exists for the given sessionId and questionId
+            //if exists, then update the MM_Selected_Option__c on the existing record with new answerId
+            //instead of inserting a new one
+            CheckObjectReadAccess.checkUserResponseAccess();
+            List<MM_User_Response__c> existingResponses = [SELECT Id FROM MM_User_Response__c WHERE MM_Response_Session__c = :sessionId AND MM_Question__c = :questionId];
+            if(!existingResponses.isEmpty()){
+                MM_User_Response__c existingResponse = existingResponses[0];
+                existingResponse.MM_Selected_Option__c = answerId;
+                CheckObjectUpdateAccess.checkUserResponseUpdateAccess();
+                update existingResponse;
+                return existingResponse.Id;
+            }
             MM_User_Response__c userResponse = new MM_User_Response__c(
                 MM_Response_Session__c = sessionId,
                 MM_Question__c = questionId,

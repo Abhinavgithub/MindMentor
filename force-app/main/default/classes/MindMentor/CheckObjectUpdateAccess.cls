@@ -6,7 +6,7 @@
  * @name              : CheckObjectUpdateAccess
  * @author            : Abhinav Singh
  * @group             : MindMentor
- * @last modified on  : 10-11-2025
+ * @last modified on  : 10-19-2025
  * @last modified by  : Abhinav Singh
 **/
 public with sharing class CheckObjectUpdateAccess {
@@ -17,6 +17,15 @@ public with sharing class CheckObjectUpdateAccess {
     public static void checkResponseUpdateAccess() {
         if (!Schema.sObjectType.MM_Response_Session__c.isUpdateable()) {
             throw new AuraHandledException('Insufficient access to update MM_Response_Session__c object.');
+        }
+    }
+    /**
+     * @description Checks if the current user has update access to the MM_User_Response__c object.
+     *              Throws an AuraHandledException if access is insufficient.
+     */
+    public static void checkUserResponseUpdateAccess() {
+        if (!Schema.sObjectType.MM_User_Response__c.isUpdateable()) {
+            throw new AuraHandledException('Insufficient access to update MM_User_Response__c object.');
         }
     }
 }
