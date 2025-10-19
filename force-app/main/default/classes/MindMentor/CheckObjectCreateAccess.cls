@@ -6,7 +6,7 @@
  * @name              : CheckObjectCreateAccess
  * @author            : Abhinav Singh
  * @group             : MindMentor
- * @last modified on  : 10-11-2025
+ * @last modified on  : 10-18-2025
  * @last modified by  : Abhinav Singh
 **/
 public with sharing class CheckObjectCreateAccess {
@@ -17,6 +17,16 @@ public with sharing class CheckObjectCreateAccess {
     public static void checkSessionCreateAccess() {
         if (!Schema.sObjectType.MM_Response_Session__c.isCreateable()) {
                     throw new AuraHandledException('Insufficient access to create MM_Response_Session__c object.');
+                }
+    }
+
+    /**
+     * @description Checks if the current user has create access to the MM_User_Response__c object.
+     *              Throws an AuraHandledException if access is insufficient.
+     */
+    public static void checkUserResponseCreateAccess() {
+        if (!Schema.sObjectType.MM_User_Response__c.isCreateable()) {
+                    throw new AuraHandledException('Insufficient access to create MM_User_Response__c object.');
                 }
     }
 }
