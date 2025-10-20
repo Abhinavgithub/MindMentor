@@ -2,7 +2,7 @@
   @description       : 
   @author            : Abhinav Singh
   @group             : 
-  @last modified on  : 10-16-2025
+  @last modified on  : 10-20-2025
   @last modified by  : Abhinav Singh
 -->
 <template>
@@ -24,9 +24,9 @@
             <!-- Display only the current question -->
             <template if:true={currentQuestion}>
                 <div class="slds-var-m-bottom_large">
-                    <lightning-radio-group name={currentQuestion.Id} label={currentQuestion.combinedLabel}
-                        options={currentQuestion.options} value={currentSelectedAnswer} onchange={handleOptionChange}
-                        required type="radio">
+                    <lightning-radio-group key={radioKey} name={currentQuestion.Id}
+                        label={currentQuestion.combinedLabel} options={currentQuestion.options}
+                        value={currentSelectedAnswer} onchange={handleOptionChange} required type="radio">
                     </lightning-radio-group>
                 </div>
 
