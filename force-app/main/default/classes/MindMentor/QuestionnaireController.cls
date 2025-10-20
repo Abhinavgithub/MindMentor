@@ -104,6 +104,43 @@ public without sharing class QuestionnaireController {
     }
 
     /**
+     * @description Bulk fetch of existing user responses for a given session.
+     * Returns a JSON string of a map: { questionId -> selectedOptionId }.
+     * @param sessionId The Id of the MM_Response_Session__c.
+     */
+    @AuraEnabled(cacheable=true)
+    public static String getSessionResponses(Id sessionId) {
+        try {
+            // CRUD/FLS checks
+            CheckObjectReadAccess.checkUserResponseAccess();
+
+            // Guard
+            if (sessionId == null) {
+                return JSON.serialize(new Map<Id, Id>());
+            }
+
+            // Query existing responses for the session
+            List<MM_User_Response__c> responses = [
+                SELECT Id, MM_Question__c, MM_Selected_Option__c
+                FROM MM_User_Response__c
+                WHERE MM_Response_Session__c = :sessionId
+            ];
+
+            // Build map QuestionId -> SelectedOptionId
+            Map<Id, Id> result = new Map<Id, Id>();
+            for (MM_User_Response__c r : responses) {
+                if (r.MM_Question__c != null) {
+                    result.put(r.MM_Question__c, r.MM_Selected_Option__c);
+                }
+            }
+            return JSON.serialize(result);
+        } catch (Exception e) {
+            System.debug('Error retrieving session responses: ' + e.getMessage());
+            throw new AuraHandledException('Unable to retrieve Session Responses: ' + e.getMessage());
+        }
+    }
+
+    /**
      * @description Retrieves the ContactId of the current user.
      * @param userId The Id of the user whose ContactId is to be retrieved.
      * @return The ContactId of the current user.
