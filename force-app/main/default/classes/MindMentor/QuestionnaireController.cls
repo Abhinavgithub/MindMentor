@@ -3,6 +3,7 @@
  */
 public without sharing class QuestionnaireController {
     final static String IN_PROGRESS = 'In Progress';
+    final static String COMPLETED = 'Completed';
     final static Integer MAX_QUESTIONS = 5;
 
     /**
@@ -194,7 +195,8 @@ public without sharing class QuestionnaireController {
                 return handleNewSession(respSession, userResponse);
             }
 
-            respSession.MM_Status__c = 'Completed';
+            respSession.MM_Status__c = COMPLETED;
+            respSession.MM_End_Time__c = System.now();
             CheckObjectUpdateAccess.checkResponseUpdateAccess();
             update respSession;
 
@@ -232,5 +234,41 @@ public without sharing class QuestionnaireController {
         dto.nextQuestionId = (lastResponse != null && lastResponse.size() > 0) ? lastResponse[lastResponse.size() - 1].MM_Question__r.Id : null;
         dto.status = newSession.MM_Status__c;
         return dto;
+    }
+
+    /**
+     * @description Completes a response session by setting status to 'Completed' and MM_End_Time__c to now.
+     * @param sessionId The Id of the MM_Response_Session__c to complete.
+     * @return The Id of the completed session.
+     * @throws AuraHandledException if access is insufficient or another error occurs.
+     */
+    @AuraEnabled
+    public static Id completeSession(Id sessionId) {
+        try {
+            if (sessionId == null) {
+                throw new AuraHandledException('Session Id is required.');
+            }
+            // Ensure caller has permission to read and update session
+            CheckObjectReadAccess.checkSessionAccess();
+            CheckObjectUpdateAccess.checkResponseUpdateAccess();
+
+            MM_Response_Session__c sess = [
+                SELECT Id, MM_Status__c
+                FROM MM_Response_Session__c
+                WHERE Id = :sessionId
+                LIMIT 1
+            ];
+
+            // Idempotent completion
+            if (sess.MM_Status__c != COMPLETED) {
+                sess.MM_Status__c = COMPLETED;
+                sess.MM_End_Time__c = System.now();
+                update sess;
+            }
+            return sess.Id;
+        } catch (Exception e) {
+            System.debug('Error completing session: ' + e.getMessage());
+            throw new AuraHandledException('Unable to complete Session: ' + e.getMessage());
+        }
     }
 }

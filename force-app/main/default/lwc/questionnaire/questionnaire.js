@@ -1,8 +1,11 @@
 import { LightningElement } from 'lwc';
+import ToastContainer from 'lightning/toastContainer';
+import Toast from 'lightning/toast';
 import getQuestions from '@salesforce/apex/QuestionnaireController.getQuestions';
 import getSession from '@salesforce/apex/QuestionnaireController.getSession';
 import createUserResponse from '@salesforce/apex/QuestionnaireController.createUserResponse';
 import getSessionResponses from '@salesforce/apex/QuestionnaireController.getSessionResponses';
+import completeSession from '@salesforce/apex/QuestionnaireController.completeSession';
 import Id from '@salesforce/user/Id';
 export default class Questionnaire extends LightningElement {
     userId = Id; // Property to hold the user's ID
@@ -14,6 +17,12 @@ export default class Questionnaire extends LightningElement {
     currentSelectedAnswer = null;
     renderVersion = 0; // used with key to force re-render on navigation
 
+    connectedCallback() {
+        const toastContainer = ToastContainer.instance();
+        toastContainer.maxToasts = 5;
+        toastContainer.toastPosition = 'bottom-center';
+    }
+    
     //Getter to return the current question object for the template
     get currentQuestion() {
         return this.questions.length > 0 ? this.questions[this.currentQuestionIndex] : null;
@@ -36,7 +45,7 @@ export default class Questionnaire extends LightningElement {
     }
 
     async startAssesment() {
-        this.userId = '005gK000003Tnq1QAC'; //for testing purpose only, remove later
+        this.userId = '005gK000003Tnq1QAC'; //for testing purpose only, do not delete this line
         console.log('Start Assesment Clicked');
         console.log('Current User ID:', this.userId);
         this.loadAssessment = true;
@@ -162,10 +171,70 @@ export default class Questionnaire extends LightningElement {
         }
     }
 
-    handleSubmit() {
-        // Implement your submission logic here
+    // Centralized toast helper to ensure DOM is stable in LWR before showing
+    showToast(variant,title, message,mode = 'dismissable') {
+        Toast.show({
+           label: title,
+           message: message,
+           mode: mode,
+           variant: variant,
+           onclose: () => {
+              // Do something after the toast is closed
+           }
+        }, this);
+    }
+
+    async handleSubmit() {
         console.log('Submitting answers:', JSON.stringify(this.selectedAnswers));
-        // For example, you could call an Apex method to save the answers
+
+        // Guard: must have a session
+        if (!this.currentSessionId) {
+            console.error('No active session to complete.');
+            this.showToast('error', 'Submission Failed', 'No active session to complete.', 'sticky');
+            return;
+        }
+
+        // Persist last question response if selected (same as in handleNext)
+        try {
+            if (this.currentQuestion && this.selectedAnswers[this.currentQuestion.Id]) {
+                const userAnswer = await createUserResponse({
+                    sessionId: this.currentSessionId,
+                    questionId: this.currentQuestion.Id,
+                    answerId: this.selectedAnswers[this.currentQuestion.Id],
+                    answerText: ''
+                });
+                console.log('Final User Answer saved: ', userAnswer);
+            }
+        } catch (error) {
+            const msg = error?.body?.message || error?.message || JSON.stringify(error);
+            console.error('Error saving final user response: ', msg);
+            // surface error but continue to try completing session even if final save failed
+            this.showToast('warning', 'Partial Save', `Final answer save issue: ${msg}`, 'dismissable');
+        }
+
+        // Complete the session (set status Completed and End Time = now)
+        try {
+            const result = await completeSession({ sessionId: this.currentSessionId });
+            console.log('Session completed: ', result);
+
+            // Show success toast BEFORE changing view/navigation to avoid teardown swallowing the toast
+            this.showToast('success', 'Assessment Submitted', 'Your assessment has been submitted successfully.', 'dismissable');
+
+            // Add a small delay to ensure toast displays before resetting state
+            await new Promise(resolve => setTimeout(resolve, 300));
+
+            // Now reset to landing view or navigate
+            this.loadAssessment = false;
+            this.currentQuestionIndex = 0;
+            this.selectedAnswers = {};
+            this.currentSessionId = null;
+            this.currentSelectedAnswer = null;
+            this.renderVersion++;
+        } catch (error) {
+            const msg = error?.body?.message || error?.message || JSON.stringify(error);
+            console.error('Error completing session: ', msg);
+            this.showToast('error', 'Submission Failed', msg, 'sticky');
+        }
     }
 
     // Helper to hydrate the lightning-radio-group selection from cache for the current question
