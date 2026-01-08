@@ -1,4 +1,4 @@
-import { LightningElement } from 'lwc';
+import { LightningElement, track } from 'lwc';
 import ToastContainer from 'lightning/toastContainer';
 import Toast from 'lightning/toast';
 import getQuestions from '@salesforce/apex/QuestionnaireController.getQuestions';
@@ -14,8 +14,22 @@ export default class Questionnaire extends LightningElement {
     currentQuestionIndex = 0;
     selectedAnswers = {};
     currentSessionId = null;
-    currentSelectedAnswer = null;
+    @track currentSelectedAnswer = null;
     renderVersion = 0; // used with key to force re-render on navigation
+
+
+    value = ['option1'];
+
+    get options() {
+        return [
+            { label: 'Ross', value: 'option1' },
+            { label: 'Rachel', value: 'option2' },
+        ];
+    }
+
+    get selectedValues() {
+        return this.value.join(',');
+    }
 
     connectedCallback() {
         const toastContainer = ToastContainer.instance();
@@ -26,6 +40,24 @@ export default class Questionnaire extends LightningElement {
     //Getter to return the current question object for the template
     get currentQuestion() {
         return this.questions.length > 0 ? this.questions[this.currentQuestionIndex] : null;
+    }
+
+    //Getter to return the current question type
+    get currentQuestionType(){
+        return this.currentQuestion ? this.currentQuestion.Type : null;
+    }
+
+    get isQuestionText() {
+        return this.currentQuestionType === 'Text';
+    }
+
+    get isQuestionMultiSelect() {
+        console.log('Current Question Type: ', this.currentQuestionType);
+        return this.currentQuestionType === 'Multiple Select';
+    }
+
+    get isQuestionRadio() {
+        return this.currentQuestionType === 'Yes/No' || this.currentQuestionType === 'Multiple Choice';
     }
 
     // Getter to determine if the "Previous" button should be disabled
@@ -71,10 +103,10 @@ export default class Questionnaire extends LightningElement {
             console.log('No of questions: ', parsedResult.length);
             this.questions = parsedResult.map(q => {
                 // Map options to the format required by lightning-radio-group
-                const options = q.Options.map(opt => ({
+                const options = q.Options && Array.isArray(q.Options) ? q.Options.map(opt => ({
                     label: opt.OptionText,
                     value: opt.Id
-                }));
+                })) : [];
                 console.log('Options: ', options);
                 const combinedLabel = `${q.Order}. ${q.QuestionText}`;
                 // Return a new object with the original question data and the formatted options
@@ -119,13 +151,8 @@ export default class Questionnaire extends LightningElement {
 
     async handlePrevious() {
         if (this.currentQuestionIndex > 0) {
-            // Force clear current selection so lightning-radio-group fully re-renders
-            this.currentSelectedAnswer = null;
-
             // Decrement index synchronously
             this.currentQuestionIndex--;
-
-            // bump version to force re-render
             this.renderVersion++;
 
             // Wait for next frame to ensure DOM updated before hydration
@@ -138,31 +165,37 @@ export default class Questionnaire extends LightningElement {
         console.log('Current Question Index: ', this.currentQuestionIndex);
         console.log('Current Question ID: ', this.currentQuestion?.Id);
         console.log('Selected Answers: ', JSON.stringify(this.selectedAnswers));
-        console.log('answer for current question: ', this.currentQuestion ? this.selectedAnswers[this.currentQuestion.Id] : null);
+
+        // Validate that user selected an answer
+        if (!this.currentQuestion || !this.selectedAnswers[this.currentQuestion.Id]) {
+            this.showToast('warning', 'Answer Required', 'Please select an answer before proceeding.', 'dismissable');
+            return;
+        }
 
         // Persist current selection for this question
         try {
-            if (this.currentQuestion && this.selectedAnswers[this.currentQuestion.Id]) {
-                const userAnswer = await createUserResponse({
-                    sessionId: this.currentSessionId,
-                    questionId: this.currentQuestion.Id,
-                    answerId: this.selectedAnswers[this.currentQuestion.Id],
-                    answerText: ''
-                });
-                console.log('User Answer saved: ', userAnswer);
+            let answerValue = this.selectedAnswers[this.currentQuestion.Id];
+            // Convert array to comma-separated string for Apex if needed
+            if (Array.isArray(answerValue)) {
+                answerValue = answerValue.join(',');
             }
+            
+            const userAnswer = await createUserResponse({
+                sessionId: this.currentSessionId,
+                questionId: this.currentQuestion.Id,
+                answerId: answerValue,
+                answerText: ''
+            });
+            console.log('User Answer saved: ', userAnswer);
         } catch (error) {
             const msg = error?.body?.message || error?.message || JSON.stringify(error);
             console.error('Error saving user response: ', msg);
+            this.showToast('error', 'Save Failed', msg, 'dismissable');
+            return;
         }
 
         if (this.currentQuestionIndex < this.questions.length - 1) {
-            // Clear before moving to force re-render of radio group
-            this.currentSelectedAnswer = null;
-
             this.currentQuestionIndex++;
-
-            // bump version to force re-render
             this.renderVersion++;
 
             // Wait for next frame to ensure DOM updated before hydration
@@ -184,6 +217,31 @@ export default class Questionnaire extends LightningElement {
         }, this);
     }
 
+    handleTextChange(event) {
+        const questionId = event.target.name;
+        const enteredText = event.target.value;
+        // update cache and current value
+        this.selectedAnswers[questionId] = enteredText;
+        this.currentSelectedAnswer = enteredText;
+
+        console.log('Selected Answers: ', JSON.stringify(this.selectedAnswers));
+        console.log('Question ID: ', questionId, ' Entered Text: ', enteredText);
+        console.log('Answer for current question: ', this.selectedAnswers[this.currentQuestion.Id]);
+    }
+
+    handleCheckboxChange(event) {
+        console.log('Checkbox Change Event: ', event);
+        const questionId = event.target.name;
+        const selectedValues = event.detail.value;
+        // Store as array directly in cache
+        this.selectedAnswers[questionId] = Array.isArray(selectedValues) ? selectedValues : [];
+        this.currentSelectedAnswer = Array.isArray(selectedValues) ? selectedValues : [];
+        
+        console.log('Selected Answers: ', JSON.stringify(this.selectedAnswers));
+        console.log('Question ID: ', questionId, ' Selected Values: ', selectedValues);
+        console.log('Answer for current question: ', this.selectedAnswers[this.currentQuestion.Id]);
+    }
+
     async handleSubmit() {
         console.log('Submitting answers:', JSON.stringify(this.selectedAnswers));
 
@@ -197,10 +255,16 @@ export default class Questionnaire extends LightningElement {
         // Persist last question response if selected (same as in handleNext)
         try {
             if (this.currentQuestion && this.selectedAnswers[this.currentQuestion.Id]) {
+                let answerValue = this.selectedAnswers[this.currentQuestion.Id];
+                // Convert array to comma-separated string for Apex if needed
+                if (Array.isArray(answerValue)) {
+                    answerValue = answerValue.join(',');
+                }
+                
                 const userAnswer = await createUserResponse({
                     sessionId: this.currentSessionId,
                     questionId: this.currentQuestion.Id,
-                    answerId: this.selectedAnswers[this.currentQuestion.Id],
+                    answerId: answerValue,
                     answerText: ''
                 });
                 console.log('Final User Answer saved: ', userAnswer);
@@ -240,12 +304,23 @@ export default class Questionnaire extends LightningElement {
     // Helper to hydrate the lightning-radio-group selection from cache for the current question
     syncCurrentSelectionFromCache() {
         const q = this.currentQuestion;
-        // compute next value
-        const nextValue = q ? this.selectedAnswers[q.Id] || null : null;
+        let nextValue = q ? this.selectedAnswers[q.Id] : null;
 
-        // Set it to ensure lightning-radio-group reflects it after re-render
+        // For checkbox questions, ensure it's always an array
+        if (this.isQuestionMultiSelect) {
+            if (Array.isArray(nextValue)) {
+                nextValue = nextValue;
+            } else if (typeof nextValue === 'string' && nextValue) {
+                nextValue = nextValue.split(',').filter(v => v.trim() !== '');
+            } else {
+                nextValue = [];
+            }
+        } else {
+            // For radio/text, keep as is (string or null)
+            nextValue = nextValue || null;
+        }
+
         this.currentSelectedAnswer = nextValue;
-
         console.log('Synced currentSelectedAnswer to: ', this.currentSelectedAnswer, ' for question: ', q?.Id);
     }
 

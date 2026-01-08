@@ -16,7 +16,7 @@ public without sharing class QuestionnaireController {
      * @throws AuraHandledException if access is insufficient or another error occurs.
      */
     @AuraEnabled(cacheable=false)
-    public static String createUserResponse(Id sessionId, Id questionId, Id answerId,String answerText){
+    public static String createUserResponse(Id sessionId, Id questionId, String answerId){
         try {
             //add a SOQL query to check if the userResponse already exists for the given sessionId and questionId
             //if exists, then update the MM_Selected_Option__c on the existing record with new answerId
@@ -25,7 +25,8 @@ public without sharing class QuestionnaireController {
             List<MM_User_Response__c> existingResponses = [SELECT Id FROM MM_User_Response__c WHERE MM_Response_Session__c = :sessionId AND MM_Question__c = :questionId];
             if(!existingResponses.isEmpty()){
                 MM_User_Response__c existingResponse = existingResponses[0];
-                existingResponse.MM_Selected_Option__c = answerId;
+                existingResponse.MM_Selected_Option__c = isValidSalesforceId(answerId) ? (Id)answerId : null;
+                existingResponse.MM_Answer_Text__c = isValidSalesforceId(answerId) ? null : (String)answerId;
                 CheckObjectUpdateAccess.checkUserResponseUpdateAccess();
                 update existingResponse;
                 return existingResponse.Id;
@@ -33,8 +34,8 @@ public without sharing class QuestionnaireController {
             MM_User_Response__c userResponse = new MM_User_Response__c(
                 MM_Response_Session__c = sessionId,
                 MM_Question__c = questionId,
-                MM_Selected_Option__c = answerId,
-                MM_Answer_Text__c = answerText
+                MM_Selected_Option__c = isValidSalesforceId(answerId) ? (Id)answerId : null,
+                MM_Answer_Text__c = isValidSalesforceId(answerId) ? null : (String)answerId
             );
             CheckObjectCreateAccess.checkUserResponseCreateAccess();
             insert userResponse;
@@ -44,6 +45,39 @@ public without sharing class QuestionnaireController {
             throw new AuraHandledException('Unable to create User Response: ' + e.getMessage());
         }
     }
+
+    /**
+     * @description Creates a new MM_User_Response_Options__c record for multi-select questions.
+     * @param sessionId The Id of the MM_Response_Session__c.
+     * @param questionId The Id of the MM_Question__c.
+     * @param answerId The Id of the MM_Answer_Option__c.
+     * @return The Id of the MM_User_Response_Options__c record created.
+     * @throws AuraHandledException if access is insufficient or another error occurs.
+     */
+    @AuraEnabled(cacheable=false)
+    public static String createUserResponseforMultiSelect(Id sessionId, Id questionId, String answerId){
+        try{
+            //Split the answerId string by comma to get individual option Ids
+            List<String> answerIds = answerId.split(',');
+            List<MM_User_Response_Options__c> userResponseOptionsList = new List<MM_User_Response_Options__c>();
+            for(String ansId : answerIds){
+                MM_User_Response_Options__c userResponseOption = new MM_User_Response_Options__c(
+                    MM_Response_Session__c = sessionId,
+                    MM_Question__c = questionId,
+                    MM_Question_Option__c = isValidSalesforceId(ansId) ? (Id)ansId : null
+                );
+                userResponseOptionsList.add(userResponseOption);
+            }
+            CheckObjectCreateAccess.checkUserResponseOptionsCreateAccess();
+            insert userResponseOptionsList;
+            return String.valueOf(userResponseOptionsList.size());
+        }
+        catch(Exception e){
+            System.debug('Error creating user response for multi-select: ' + e.getMessage());
+            throw new AuraHandledException('Unable to create User Response for Multi-Select: ' + e.getMessage());
+        }
+    }
+
 
     /**
      * @description Starts the assessment and returns the session Id if the assessment is in progress and not completed.
@@ -79,7 +113,7 @@ public without sharing class QuestionnaireController {
         try {
             CheckObjectReadAccess.checkQuestionAccess();
             CheckObjectReadAccess.checkQuestionOptionAccess();
-            List<MM_Question__c> questions = [SELECT Id, MM_QuestionText__c, MM_Type__c, MM_Order__c, MM_Category__c, MM_Weight__c, MM_Section__c, MM_Crisis_Flag__c, MM_Immediate_Intervention__c, (SELECT Id, MM_Option_Text__c FROM Question_Options__r) FROM MM_Question__c ORDER BY MM_Order__c LIMIT 5];
+            List<MM_Question__c> questions = [SELECT Id, MM_QuestionText__c, MM_Type__c, MM_Order__c, MM_Category__c, MM_Weight__c, MM_Section__c, MM_Crisis_Flag__c, MM_Immediate_Intervention__c, (SELECT Id, MM_Option_Text__c FROM Question_Options__r) FROM MM_Question__c ORDER BY MM_Order__c DESC];
             List<Map<String, Object>> questionList = new List<Map<String, Object>>();
             for (MM_Question__c q : questions) {
                 Map<String, Object> questionMap = new Map<String, Object>();
@@ -172,36 +206,38 @@ public without sharing class QuestionnaireController {
         return sessions.isEmpty() ? null : sessions[0];
     }
 
-        /**
-         * @description Handles the logic for an in-progress session: returns the session Id if not completed,
-         * or marks the session as completed if the max number of questions is reached.
-         * @param respSession The in-progress MM_Response_Session__c.
-         * @param contactId The ContactId associated with the session.
-         * @return The session Id if assessment is still in progress, otherwise null.
-         */
-        private static ResponseSessionDTO handleSession(MM_Response_Session__c respSession, String contactId) {
-            if (respSession == null) {
-                return handleNewSession(createResponseSession(contactId), null);
-            }
-            CheckObjectReadAccess.checkUserResponseAccess();
-            List<MM_User_Response__c> userResponse = [
-                SELECT Id, MM_Question__r.Id
-                FROM MM_User_Response__c
-                WHERE MM_Response_Session__c = :respSession.Id
-                ORDER BY CreatedDate DESC
-            ];
 
-            if (userResponse.size() < MAX_QUESTIONS){
-                return handleNewSession(respSession, userResponse);
-            }
 
-            respSession.MM_Status__c = COMPLETED;
-            respSession.MM_End_Time__c = System.now();
-            CheckObjectUpdateAccess.checkResponseUpdateAccess();
-            update respSession;
-
-            return handleNewSession(createResponseSession(respSession.MM_User__c), null);
+    /**
+     * @description Handles the logic for an in-progress session: returns the session Id if not completed,
+     * or marks the session as completed if the max number of questions is reached.
+     * @param respSession The in-progress MM_Response_Session__c.
+     * @param contactId The ContactId associated with the session.
+     * @return The session Id if assessment is still in progress, otherwise null.
+     */
+    private static ResponseSessionDTO handleSession(MM_Response_Session__c respSession, String contactId) {
+        if (respSession == null) {
+            return handleNewSession(createResponseSession(contactId), null);
         }
+        CheckObjectReadAccess.checkUserResponseAccess();
+        List<MM_User_Response__c> userResponse = [
+            SELECT Id, MM_Question__r.Id
+            FROM MM_User_Response__c
+            WHERE MM_Response_Session__c = :respSession.Id
+            ORDER BY CreatedDate DESC
+        ];
+
+        if (userResponse.size() < MAX_QUESTIONS){
+            return handleNewSession(respSession, userResponse);
+        }
+
+        respSession.MM_Status__c = COMPLETED;
+        respSession.MM_End_Time__c = System.now();
+        CheckObjectUpdateAccess.checkResponseUpdateAccess();
+        update respSession;
+
+        return handleNewSession(createResponseSession(respSession.MM_User__c), null);
+    }
 
     //Create new Response Session record
     private static MM_Response_Session__c createResponseSession(String contactId) {
@@ -213,6 +249,25 @@ public without sharing class QuestionnaireController {
         CheckObjectCreateAccess.checkSessionCreateAccess();
         insert newSession;
         return newSession;
+    }
+
+    public static Boolean isValidSalesforceId(String possibleId) {
+        // 1. Basic Length Check (Optional, but good for quick exit)
+        if (possibleId == null || (possibleId.length() != 15 && possibleId.length() != 18)) {
+            return false;
+        }
+        
+        // 2. Try-Catch for Full Validation
+        try {
+            // Attempt to assign the String to an Id variable.
+            // Apex will throw a System.StringException if the format is invalid.
+            Id recordId = possibleId;
+            // If the assignment succeeds, it's a valid ID format.
+            return true;
+        } catch (System.StringException e) {
+            // Catches the exception thrown for an invalid Id format.
+            return false;
+        }
     }
 
     /**
