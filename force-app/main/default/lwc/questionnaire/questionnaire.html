@@ -2,7 +2,7 @@
   @description       : 
   @author            : Abhinav Singh
   @group             : 
-  @last modified on  : 10-20-2025
+  @last modified on  : 01-08-2026
   @last modified by  : Abhinav Singh
 -->
 <template>
@@ -24,10 +24,29 @@
             <!-- Display only the current question -->
             <template if:true={currentQuestion}>
                 <div class="slds-var-m-bottom_large">
-                    <lightning-radio-group key={radioKey} name={currentQuestion.Id}
-                        label={currentQuestion.combinedLabel} options={currentQuestion.options}
-                        value={currentSelectedAnswer} onchange={handleOptionChange} required type="radio">
-                    </lightning-radio-group>
+                    <template if:true={isQuestionRadio}>
+                        <lightning-radio-group key={radioKey} name={currentQuestion.Id}
+                            label={currentQuestion.combinedLabel} options={currentQuestion.options}
+                            value={currentSelectedAnswer} onchange={handleOptionChange} required type="radio">
+                        </lightning-radio-group>
+                    </template>
+                    <template if:true={isQuestionText}>
+                        <lightning-textarea key={radioKey} name={currentQuestion.Id}
+                            label={currentQuestion.combinedLabel} value={currentSelectedAnswer}
+                            onchange={handleTextChange} required>
+                        </lightning-textarea>
+                    </template>
+                    <!-- <template if:true={isQuestionMultiSelect}>
+                        <lightning-checkbox-group name={currentQuestion.Id} label={currentQuestion.combinedLabel}
+                            options={currentQuestion.options} value={currentSelectedAnswer}
+                            onchange={handleCheckboxChange} required>
+                        </lightning-checkbox-group>
+                    </template> -->
+                    <template if:true={isQuestionMultiSelect}>
+                        <lightning-checkbox-group key={radioKey} name={currentQuestion.Id}
+                            label={currentQuestion.combinedLabel} options={currentQuestion.options}
+                            value={currentSelectedAnswer} onchange={handleCheckboxChange}></lightning-checkbox-group>
+                    </template>
                 </div>
 
                 <!-- Navigation Buttons -->

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Stella_s_Responses</fullName>
+    <columns>NAME</columns>
+    <columns>MM_Question_Text__c</columns>
+    <columns>MM_Option_Text__c</columns>
+    <columns>MM_Answer_Text__c</columns>
+    <columns>MM_Score__c</columns>
+    <columns>MM_Question__c</columns>
+    <columns>MM_Selected_Option__c</columns>
+    <columns>MM_Response_Session__c</columns>
+    <columns>LAST_UPDATE</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>CREATEDBY_USER</field>
+        <operation>equals</operation>
+        <value>Stella Pavlova</value>
+    </filters>
+    <label>Stella&apos;s Responses</label>
+</ListView>
