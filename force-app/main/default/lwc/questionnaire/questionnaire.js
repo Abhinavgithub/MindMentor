@@ -181,11 +181,13 @@ export default class Questionnaire extends LightningElement {
             }
             
             const userAnswer = await createUserResponse({
-                sessionId: this.currentSessionId,
-                questionId: this.currentQuestion.Id,
-                answerId: answerValue,
-                answerText: ''
-            });
+                        sessionId: this.currentSessionId,
+                        questionId: this.currentQuestion.Id,
+                        answerId: answerValue,
+                        answerText: this.currentQuestionType == 'Text' ? answerValue : '',
+                        questionType: this.currentQuestionType
+                    });
+           
             console.log('User Answer saved: ', userAnswer);
         } catch (error) {
             const msg = error?.body?.message || error?.message || JSON.stringify(error);
