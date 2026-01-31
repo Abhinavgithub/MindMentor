@@ -50,3 +50,9 @@ manifest/package.xml
 # Ignore scripts/apex and scripts/soql folders
 scripts/apex/
 scripts/soql/
+
+# Code Review Report
+CodeReview.md
+
+gemini.md
+plan.md
