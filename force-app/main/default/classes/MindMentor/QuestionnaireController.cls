@@ -190,9 +190,15 @@ public with sharing class QuestionnaireController {
   @AuraEnabled(cacheable=false)
   public static string getQuestions() {
     try {
+      //Get Questions from active questionnaires
       // Query questions with USER_MODE
       List<MM_Question__c> questions = Database.query(
-        'SELECT Id, MM_QuestionText__c, MM_Type__c, MM_Order__c, MM_Category__c, MM_Weight__c, MM_Section__c, MM_Crisis_Flag__c, MM_Immediate_Intervention__c, (SELECT Id, MM_Option_Text__c FROM Question_Options__r) FROM MM_Question__c ORDER BY MM_Order__c LIMIT :MAX_QUESTIONS',
+        'SELECT Id, MM_QuestionText__c, MM_Type__c, MM_Order__c, MM_Category__c, MM_Weight__c, MM_Section__c, MM_Crisis_Flag__c, MM_Immediate_Intervention__c, ' +
+          '       (SELECT Id, MM_Option_Text__c FROM Question_Options__r) ' +
+          'FROM MM_Question__c ' +
+          'WHERE MM_Questionnaire__r.MM_Is_Active__c = true ' +
+          'ORDER BY MM_Order__c ' +
+          'LIMIT :MAX_QUESTIONS',
         AccessLevel.USER_MODE
       );
 
