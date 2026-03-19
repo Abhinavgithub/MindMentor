@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GenAiPromptTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
+    <activeVersionIdentifier>FrrJMHbXliJgBOp8zOazjneuc+ahL+xczc+lc/Hhmn0=_1</activeVersionIdentifier>
+    <description>This template is used to calculate the score and the summary after the response session is submitted</description>
+    <developerName>Calculate_User_Score_and_Summary</developerName>
+    <masterLabel>Calculate User Score and Summary</masterLabel>
+    <templateVersions>
+        <content>Calculate the Score and Summary based on the input as follows:
+
+Calculate Score:
+From the {!$RelatedList:Response_Session_Id.User_Responses__r.Records}, Query the records to get the MM_Calculated_Score__c field value for all the records.
+Sum all the MM_Calculated_Score__c field values for all the records to calculate the score
+
+Calculate Summary:
+You&apos;re a mental health expert. Based on the score calculated above , provide a summary of the mental health condition of the user.
+
+Output Format:
+The output should be in below format:
+{
+&quot;Score&quot;: 20,
+&quot;Summary&quot;: &quot;You&apos;re suffering from depression&quot;
+}
+
+
+</content>
+        <generationTemplateConfigs>
+            <generationConfigDeveloperName>einstein_gpt__enUsLanguageStyle</generationConfigDeveloperName>
+        </generationTemplateConfigs>
+        <inputs>
+            <apiName>Response_Session_Id</apiName>
+            <definition>SOBJECT://MM_Response_Session__c</definition>
+            <masterLabel>Response Session Id</masterLabel>
+            <referenceName>Input:Response_Session_Id</referenceName>
+            <required>true</required>
+        </inputs>
+        <primaryModel>sfdc_ai__DefaultBedrockAnthropicClaude45Haiku</primaryModel>
+        <responseFormat>JSON</responseFormat>
+        <status>Published</status>
+        <templateDataProviders>
+            <definition>invocable://getRelatedList</definition>
+            <parameters>
+                <definition>primitive://String</definition>
+                <isRequired>true</isRequired>
+                <parameterName>parentRecordId</parameterName>
+                <valueExpression>{!$Input:Response_Session_Id.Id}</valueExpression>
+            </parameters>
+            <parameters>
+                <definition>primitive://String</definition>
+                <isRequired>true</isRequired>
+                <parameterName>relatedListName</parameterName>
+                <valueExpression>User_Responses__r</valueExpression>
+            </parameters>
+            <referenceName>RelatedList:Response_Session_Id.User_Responses__r.Records</referenceName>
+        </templateDataProviders>
+        <versionIdentifier>FrrJMHbXliJgBOp8zOazjneuc+ahL+xczc+lc/Hhmn0=_1</versionIdentifier>
+    </templateVersions>
+    <type>einstein_gpt__flex</type>
+    <visibility>Global</visibility>
+</GenAiPromptTemplate>
