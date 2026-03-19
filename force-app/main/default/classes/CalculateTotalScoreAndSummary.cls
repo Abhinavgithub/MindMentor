@@ -8,6 +8,7 @@ public with sharing class CalculateTotalScoreAndSummary {
     responseSessionValue.value = responseSession;
     Map<String, ConnectApi.WrappedValue> inputParams = new Map<String, ConnectApi.WrappedValue>();
     inputParams.put('Input:Response_Session_Id', responseSessionValue);
+    Logger.info('Input Params of the prompt template: ' + inputParams);
 
     // Configure invocation parameters
     ConnectApi.EinsteinPromptTemplateGenerationsInput executeTemplateInput = new ConnectApi.EinsteinPromptTemplateGenerationsInput();
@@ -18,6 +19,7 @@ public with sharing class CalculateTotalScoreAndSummary {
 
     try {
       if (Test.isRunningTest()) {
+        Logger.info('Running in test context');
         if (responseSessionId == 'ERROR') {
           CalloutException e = new CalloutException();
           e.setMessage('Test Exception');
@@ -32,11 +34,13 @@ public with sharing class CalculateTotalScoreAndSummary {
         executeTemplateInput
       );
       ConnectApi.EinsteinLLMGenerationItemOutput response = generationsOutput.generations[0];
-      System.debug(response.text);
+      Logger.info('Response of the prompt template: ' + response.text);
       return response.text;
-    } catch (Exception e) {
-      System.debug(e.getMessage());
+    } catch (Exception ex) {
+      Logger.error('Error calling Einstein Prompt Template: ' + ex);
       throw e;
+    } finally {
+      Logger.saveLog();
     }
   }
 }

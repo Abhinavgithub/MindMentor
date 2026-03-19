@@ -12,15 +12,22 @@ public with sharing class ResponseSessionService {
     List<MM_Response_Session__c> sessionsToUpdate = new List<MM_Response_Session__c>();
 
     for (MM_Response_Session__c responseSession : responseSessions) {
+      Logger.info('Processing response Sessions: ' + responseSession.Name);
       Boolean isCompleted = responseSession.MM_Status__c == 'Completed';
       Boolean isStatusChanged = true;
-      
-      if (oldResponseSessions != null && oldResponseSessions.containsKey(responseSession.Id)) {
-        isStatusChanged = responseSession.MM_Status__c != oldResponseSessions.get(responseSession.Id).MM_Status__c;
+
+      if (
+        oldResponseSessions != null &&
+        oldResponseSessions.containsKey(responseSession.Id)
+      ) {
+        isStatusChanged =
+          responseSession.MM_Status__c !=
+          oldResponseSessions.get(responseSession.Id).MM_Status__c;
       }
 
       if (isCompleted && isStatusChanged) {
         responseSessionIds.add(responseSession.Id);
+        Logger.info('Valid response SessionsSet: ' + responseSessionIds);
       }
     }
 
@@ -32,6 +39,7 @@ public with sharing class ResponseSessionService {
       String totalScoreAndSummary = CalculateTotalScoreAndSummary.getTotalScoreAndSummary(
         responseSessionId
       );
+      Logger.info('Total Score and Summary: ' + totalScoreAndSummary);
 
       if (String.isNotBlank(totalScoreAndSummary)) {
         ResponseSessionWrapper wrapper = (ResponseSessionWrapper) JSON.deserialize(
@@ -50,7 +58,16 @@ public with sharing class ResponseSessionService {
     }
 
     if (!sessionsToUpdate.isEmpty()) {
-      update sessionsToUpdate;
+      Logger.info('Updating response sessions: ' + sessionsToUpdate);
+      try {
+        update sessionsToUpdate;
+      } catch (Exception ex) {
+        Logger.error('Error updating response sessions: ' + ex);
+        throw ex;
+      } finally {
+        Logger.info('Finished updating response sessions');
+        Logger.saveLog();
+      }
     }
   }
 
