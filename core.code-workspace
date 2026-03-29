@@ -1,0 +1,19 @@
+{
+  "folders": [
+    {
+      "path": "/Users/abhinav/Developer/SFDC/MindMentor"
+    }
+  ],
+  "settings": {
+    "eslint.workingDirectories": [
+      "/Users/abhinav/Developer/SFDC/MindMentor"
+    ],
+    "eslint.validate": [
+      "javascript",
+      "typescript"
+    ],
+    "eslint.options": {
+      "overrideConfigFile": "/Users/abhinav/Developer/SFDC/MindMentor/.eslintrc.json"
+    }
+  }
+}
