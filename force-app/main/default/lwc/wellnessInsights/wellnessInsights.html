@@ -1,0 +1,104 @@
+<template>
+    <div class="wellness-insights-container slds-var-p-around_medium">
+        <!-- Header -->
+        <div class="slds-box slds-theme_shade slds-var-m-bottom_medium">
+            <div class="slds-grid slds-grid_vertical-align-center">
+                <h1 class="slds-text-heading_large header-title">
+                    <lightning-icon icon-name="utility:heart" size="small"
+                        class="slds-var-m-right_x-small"></lightning-icon>
+                    {label.insights}
+                </h1>
+            </div>
+        </div>
+
+        <!-- Loading State -->
+        <template if:true={isLoading}>
+            <div class="slds-box slds-theme_default slds-text-align_center slds-var-p-around_large loading-container">
+                <lightning-spinner alternative-text={label.loading} size="medium"></lightning-spinner>
+                <p class="slds-var-m-top_small">{label.loading}</p>
+            </div>
+        </template>
+
+        <!-- Error State -->
+        <template if:true={showError}>
+            <div class="slds-box slds-theme_default">
+                <div class="slds-illustration slds-illustration_small">
+                    <lightning-icon icon-name="utility:error" size="medium" variant="error"
+                        class="slds-var-m-bottom_small"></lightning-icon>
+                    <h3 class="slds-text-heading_medium slds-var-m-bottom_x-small">
+                        Error Loading Insights
+                    </h3>
+                    <p class="slds-text-body_regular">{error}</p>
+                </div>
+            </div>
+        </template>
+
+        <!-- No Data State -->
+        <template if:true={showNoData}>
+            <div class="slds-box slds-theme_default">
+                <div class="slds-illustration slds-illustration_small slds-text-align_center">
+                    <lightning-icon icon-name="utility:info" size="medium" variant="warning"
+                        class="slds-var-m-bottom_small"></lightning-icon>
+                    <h3 class="slds-text-heading_medium slds-var-m-bottom_x-small">
+                        No Assessment Completed
+                    </h3>
+                    <p class="slds-text-body_regular">{label.noData}</p>
+                </div>
+            </div>
+        </template>
+
+        <!-- Content State -->
+        <template if:true={showContent}>
+            <!-- Insights Cards -->
+            <template if:true={hasInsights}>
+                <div class="insights-grid">
+                    <template for:each={insights} for:item="insight">
+                        <div key={insight.category} class="slds-box insight-card" data-severity={insight.severity}
+                            data-category={insight.category}>
+                            <div class="slds-media">
+                                <div class="slds-media__figure">
+                                    <lightning-icon icon-name={insight.icon} size="medium"
+                                        class="insight-icon"></lightning-icon>
+                                </div>
+                                <div class="slds-media__body">
+                                    <h3 class="slds-text-heading_small slds-var-m-bottom_x-small">
+                                        {insight.category}
+                                    </h3>
+                                    <p class="slds-text-body_regular insight-text">
+                                        {insight.insight}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </template>
+
+            <!-- Fallback Display (when prompt template fails) -->
+            <template if:true={showFallback}>
+                <div class="slds-box slds-theme_warning slds-var-m-top_medium">
+                    <div class="slds-media">
+                        <div class="slds-media__figure">
+                            <lightning-icon icon-name="utility:summary" size="medium"></lightning-icon>
+                        </div>
+                        <div class="slds-media__body">
+                            <h3 class="slds-text-heading_small slds-var-m-bottom_x-small">
+                                {label.fallback}
+                            </h3>
+                            <template if:true={fallbackScore}>
+                                <p class="slds-text-body_regular slds-var-m-bottom_x-small">
+                                    <strong>Score:</strong> {fallbackScore}
+                                </p>
+                            </template>
+                            <template if:true={fallbackSummary}>
+                                <p class="slds-text-body_regular">
+                                    {fallbackSummary}
+                                </p>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+            </template>
+        </template>
+    </div>
+</template>

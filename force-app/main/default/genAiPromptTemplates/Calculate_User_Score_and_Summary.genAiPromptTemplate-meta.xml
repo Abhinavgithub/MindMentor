@@ -1,7 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <GenAiPromptTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
-    <activeVersionIdentifier>FrrJMHbXliJgBOp8zOazjneuc+ahL+xczc+lc/Hhmn0=_1</activeVersionIdentifier>
-    <description>This template is used to calculate the score and the summary after the response session is submitted</description>
+    <activeVersionIdentifier
+  >FrrJMHbXliJgBOp8zOazjneuc+ahL+xczc+lc/Hhmn0=_1</activeVersionIdentifier>
+    <description
+  >This template is used to calculate the score and the summary after the response session is submitted</description>
     <developerName>Calculate_User_Score_and_Summary</developerName>
     <masterLabel>Calculate User Score and Summary</masterLabel>
     <templateVersions>
@@ -24,7 +26,8 @@ The output should be in below format:
 
 </content>
         <generationTemplateConfigs>
-            <generationConfigDeveloperName>einstein_gpt__enUsLanguageStyle</generationConfigDeveloperName>
+            <generationConfigDeveloperName
+      >einstein_gpt__enUsLanguageStyle</generationConfigDeveloperName>
         </generationTemplateConfigs>
         <inputs>
             <apiName>Response_Session_Id</apiName>
@@ -33,8 +36,8 @@ The output should be in below format:
             <referenceName>Input:Response_Session_Id</referenceName>
             <required>true</required>
         </inputs>
-        <primaryModel>sfdc_ai__DefaultBedrockAnthropicClaude45Haiku</primaryModel>
-        <responseFormat>JSON</responseFormat>
+        <primaryModel
+    >sfdc_ai__DefaultBedrockAnthropicClaude45Haiku</primaryModel>
         <status>Published</status>
         <templateDataProviders>
             <definition>invocable://getRelatedList</definition>
@@ -42,7 +45,8 @@ The output should be in below format:
                 <definition>primitive://String</definition>
                 <isRequired>true</isRequired>
                 <parameterName>parentRecordId</parameterName>
-                <valueExpression>{!$Input:Response_Session_Id.Id}</valueExpression>
+                <valueExpression
+        >{!$Input:Response_Session_Id.Id}</valueExpression>
             </parameters>
             <parameters>
                 <definition>primitive://String</definition>
@@ -50,9 +54,11 @@ The output should be in below format:
                 <parameterName>relatedListName</parameterName>
                 <valueExpression>User_Responses__r</valueExpression>
             </parameters>
-            <referenceName>RelatedList:Response_Session_Id.User_Responses__r.Records</referenceName>
+            <referenceName
+      >RelatedList:Response_Session_Id.User_Responses__r.Records</referenceName>
         </templateDataProviders>
-        <versionIdentifier>FrrJMHbXliJgBOp8zOazjneuc+ahL+xczc+lc/Hhmn0=_1</versionIdentifier>
+        <versionIdentifier
+    >FrrJMHbXliJgBOp8zOazjneuc+ahL+xczc+lc/Hhmn0=_1</versionIdentifier>
     </templateVersions>
     <type>einstein_gpt__flex</type>
     <visibility>Global</visibility>

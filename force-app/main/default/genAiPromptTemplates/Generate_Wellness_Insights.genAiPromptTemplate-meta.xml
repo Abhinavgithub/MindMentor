@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<GenAiPromptTemplate xmlns="http://soap.sforce.com/2006/04/metadata">
+    <activeVersionIdentifier
+  >YjR4cWxsN2pkZmxqc2Rma2pzZGZqa3NkZmprc2Q=_1</activeVersionIdentifier>
+    <description
+  >Generates 3 actionable wellness insights based on user responses, categorized by mental health areas</description>
+    <developerName>Generate_Wellness_Insights</developerName>
+    <masterLabel>Generate Wellness Insights</masterLabel>
+    <templateVersions>
+        <content
+    >You are a mental health expert AI analyzing a user's mental health assessment responses.
+
+TASK:
+Analyze the user's responses from their latest completed assessment session and generate exactly 3 actionable wellness insights.
+
+INPUT DATA:
+Session ID: {!$Input:Response_Session_Id.Id}
+Total Score: {!$Input:Response_Session_Id.MM_Total_Score__c}
+User Responses: {!$RelatedList:Response_Session_Id.User_Responses__r.Records}
+
+ANALYSIS INSTRUCTIONS:
+1. Review all questions and answers from the User_Responses__r records
+2. Group responses by the MM_Category__c field (Depression, Anxiety, Stress, Basic, General)
+3. Identify the top 3 most concerning categories based on:
+   - Response patterns indicating distress or challenges
+   - Higher scoring answers that suggest issues
+   - Frequency and severity of concerning responses
+4. Prioritize clinical categories (Depression, Anxiety, Stress) over general categories when severity is similar
+
+INSIGHT GENERATION RULES:
+- Generate ONE actionable insight per selected category
+- Each insight must be:
+  * Action-oriented (tell the user what to DO)
+  * Specific and concrete (avoid vague advice)
+  * Supportive and encouraging in tone
+  * Based on the actual responses provided
+  * EXACTLY 1 sentence only (maximum 20 words)
+  * No compound sentences - keep it simple and direct
+- Focus on practical steps the user can take immediately
+
+SEVERITY ASSESSMENT:
+For each insight, determine the severity level based on:
+- Response patterns indicating distress level
+- Score values in that category (higher scores = higher severity)
+- Clinical urgency indicators in the responses
+- Severity levels: "high", "medium", "low"
+  * high: Immediate attention needed, significant distress indicators
+  * medium: Notable concerns, moderate intervention suggested
+  * low: Minor issues, general wellness improvement
+
+CATEGORY ICON MAPPING:
+- Depression: "utility:favorite"
+- Anxiety: "utility:warning"
+- Stress: "utility:help"
+- Basic: "utility:user"
+- General: "utility:heart"
+
+OUTPUT FORMAT:
+Return a JSON object with this exact structure:
+{
+  "insights": [
+    {
+      "category": "Category Name",
+      "insight": "Action-oriented recommendation text (1 sentence, max 20 words)",
+      "icon": "utility:icon_name",
+      "severity": "high|medium|low"
+    },
+    {
+      "category": "Category Name",
+      "insight": "Action-oriented recommendation text (1 sentence, max 20 words)",
+      "icon": "utility:icon_name",
+      "severity": "high|medium|low"
+    },
+    {
+      "category": "Category Name",
+      "insight": "Action-oriented recommendation text (1 sentence, max 20 words)",
+      "icon": "utility:icon_name",
+      "severity": "high|medium|low"
+    }
+  ],
+  "fallbackScore": {!$Input:Response_Session_Id.MM_Total_Score__c},
+  "fallbackSummary": "{!$Input:Response_Session_Id.MM_Summary__c}"
+}
+
+IMPORTANT:
+- Always return exactly 3 insights
+- Ensure valid JSON format
+- Use only the category names from the data: Depression, Anxiety, Stress, Basic, General
+- Map each category to its correct icon as specified above</content>
+        <generationTemplateConfigs>
+            <generationConfigDeveloperName
+      >einstein_gpt__enUsLanguageStyle</generationConfigDeveloperName>
+        </generationTemplateConfigs>
+        <inputs>
+            <apiName>Response_Session_Id</apiName>
+            <definition>SOBJECT://MM_Response_Session__c</definition>
+            <masterLabel>Response Session Id</masterLabel>
+            <referenceName>Input:Response_Session_Id</referenceName>
+            <required>true</required>
+        </inputs>
+        <primaryModel
+    >sfdc_ai__DefaultBedrockAnthropicClaude45Haiku</primaryModel>
+        <status>Published</status>
+        <templateDataProviders>
+            <definition>invocable://getRelatedList</definition>
+            <parameters>
+                <definition>primitive://String</definition>
+                <isRequired>true</isRequired>
+                <parameterName>parentRecordId</parameterName>
+                <valueExpression
+        >{!$Input:Response_Session_Id.Id}</valueExpression>
+            </parameters>
+            <parameters>
+                <definition>primitive://String</definition>
+                <isRequired>true</isRequired>
+                <parameterName>relatedListName</parameterName>
+                <valueExpression>User_Responses__r</valueExpression>
+            </parameters>
+            <referenceName
+      >RelatedList:Response_Session_Id.User_Responses__r.Records</referenceName>
+        </templateDataProviders>
+        <versionIdentifier
+    >YjR4cWxsN2pkZmxqc2Rma2pzZGZqa3NkZmprc2Q=_1</versionIdentifier>
+    </templateVersions>
+    <type>einstein_gpt__flex</type>
+    <visibility>Global</visibility>
+</GenAiPromptTemplate>

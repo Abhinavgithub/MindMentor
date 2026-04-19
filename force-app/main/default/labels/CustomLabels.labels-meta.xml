@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomLabels xmlns="http://soap.sforce.com/2006/04/metadata">
+    <labels>
+        <fullName>WellnessInsights</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Wellness Insights</shortDescription>
+        <value>Wellness Insights</value>
+    </labels>
+    <labels>
+        <fullName>WellnessInsights_NoData</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Wellness Insights No Data Message</shortDescription>
+        <value
+    >Please complete your mental health assessment to receive personalized wellness insights.</value>
+    </labels>
+    <labels>
+        <fullName>WellnessInsights_Error</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Wellness Insights Error Message</shortDescription>
+        <value>Unable to load wellness insights. Please try again later.</value>
+    </labels>
+    <labels>
+        <fullName>WellnessInsights_Loading</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Wellness Insights Loading Message</shortDescription>
+        <value>Loading your wellness insights...</value>
+    </labels>
+    <labels>
+        <fullName>WellnessInsights_Fallback</fullName>
+        <language>en_US</language>
+        <protected>false</protected>
+        <shortDescription>Wellness Insights Fallback Title</shortDescription>
+        <value>Quick Summary</value>
+    </labels>
+</CustomLabels>

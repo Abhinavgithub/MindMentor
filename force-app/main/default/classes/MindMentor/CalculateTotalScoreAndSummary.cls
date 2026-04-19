@@ -36,8 +36,8 @@ public with sharing class CalculateTotalScoreAndSummary {
       ConnectApi.EinsteinLLMGenerationItemOutput response = generationsOutput.generations[0];
       Logger.info('Response of the prompt template: ' + response.text);
       return response.text;
-    } catch (Exception ex) {
-      Logger.error('Error calling Einstein Prompt Template: ' + ex);
+    } catch (Exception e) {
+      Logger.error('Error calling Einstein Prompt Template: ' + e.getMessage());
       throw e;
     } finally {
       Logger.saveLog();
