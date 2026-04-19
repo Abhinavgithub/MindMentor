@@ -43,5 +43,7 @@
     "overrideConfigFile": "/Users/abhinav/Developer/SFDC/MindMentor/.eslintrc.json"
   },
   "xml.preferences.showSchemaDocumentationType": "none",
-  "salesforce.einsteinForDevelopers.enable": false
+  "salesforce.einsteinForDevelopers.enable": true,
+  "salesforce.einsteinForDevelopers.enableAutoUpdateSkills": true,
+  "salesforce.einsteinForDevelopers.advanced": {}
 }

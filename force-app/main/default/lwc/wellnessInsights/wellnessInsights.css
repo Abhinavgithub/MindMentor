@@ -1,0 +1,114 @@
+/* Container for component positioning */
+.wellness-insights-container {
+  position: relative;
+}
+
+/* Loading State - Contained within component */
+.loading-container {
+  position: relative;
+  min-height: 200px;
+}
+
+/* Header Title Styling - Bold and Larger */
+.header-title {
+  font-weight: 700 !important;
+  font-size: 1.5rem !important;
+  line-height: 1.25;
+}
+
+/* Insights Grid Layout */
+.insights-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+/* Base Insight Card Styling */
+.insight-card {
+  background: linear-gradient(135deg, #ffffff 0%, #f3f3f3 100%);
+  border-left: 4px solid #0176d3;
+  transition: all 0.3s ease;
+  cursor: default;
+}
+
+.insight-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Severity-Based Border Colors */
+.insight-card[data-severity="high"] {
+  border-left-color: #c23934;
+  border-left-width: 5px;
+}
+
+.insight-card[data-severity="medium"] {
+  border-left-color: #fe9339;
+  border-left-width: 5px;
+}
+
+.insight-card[data-severity="low"] {
+  border-left-color: #04844b;
+  border-left-width: 5px;
+}
+
+/* Severity-Based Icon Colors */
+.insight-card[data-severity="high"] .insight-icon {
+  color: #c23934;
+}
+
+.insight-card[data-severity="medium"] .insight-icon {
+  color: #fe9339;
+}
+
+.insight-card[data-severity="low"] .insight-icon {
+  color: #04844b;
+}
+
+/* Default Icon Styling (fallback) */
+.insight-icon {
+  color: #0176d3;
+}
+
+/* Insight Text */
+.insight-text {
+  line-height: 1.6;
+  color: #3e3e3c;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .insights-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Animation for loading state */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.insight-card {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+/* Stagger animation for cards */
+.insight-card:nth-child(1) {
+  animation-delay: 0.1s;
+}
+
+.insight-card:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.insight-card:nth-child(3) {
+  animation-delay: 0.3s;
+}
