@@ -63,6 +63,16 @@ export default class WellnessInsights extends LightningElement {
         this.fallbackScore = data.fallbackScore;
         this.fallbackSummary = data.fallbackSummary;
         this.usedFallback = false;
+
+        // Guard: if no insights were returned, fall back to score/summary if available,
+        // or surface the no-data state so the user sees a message instead of blank.
+        if (this.insights.length === 0) {
+          if (this.fallbackScore != null || this.fallbackSummary != null) {
+            this.usedFallback = true;
+          } else {
+            this.noData = true;
+          }
+        }
       }
 
       this.isLoading = false;
