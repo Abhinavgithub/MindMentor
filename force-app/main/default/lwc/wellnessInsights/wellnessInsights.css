@@ -11,9 +11,9 @@
 
 /* Header Title Styling - Bold and Larger */
 .header-title {
-  font-weight: 700 !important;
-  font-size: 1.5rem !important;
-  line-height: 1.25;
+  font-weight: var(--slds-g-font-weight-7, 700) !important;
+  font-size: var(--slds-g-font-scale-4, 1.5rem) !important;
+  line-height: var(--slds-g-font-line-height-2, 1.25);
 }
 
 /* Insights Grid Layout */
@@ -21,13 +21,13 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 1rem;
-  margin-bottom: 1rem;
+  margin-bottom: var(--slds-g-spacing-4, 1rem);
 }
 
 /* Base Insight Card Styling */
 .insight-card {
   background: linear-gradient(135deg, #ffffff 0%, #f3f3f3 100%);
-  border-left: 4px solid #0176d3;
+  border-left: 4px solid var(--slds-g-color-brand-base-50, #0176d3);
   transition: all 0.3s ease;
   cursor: default;
 }
@@ -39,42 +39,42 @@
 
 /* Severity-Based Border Colors */
 .insight-card[data-severity="high"] {
-  border-left-color: #c23934;
+  border-left-color: var(--slds-g-color-palette-red-40, #c23934);
   border-left-width: 5px;
 }
 
 .insight-card[data-severity="medium"] {
-  border-left-color: #fe9339;
+  border-left-color: var(--slds-g-color-border-warning-1, #fe9339);
   border-left-width: 5px;
 }
 
 .insight-card[data-severity="low"] {
-  border-left-color: #04844b;
+  border-left-color: var(--slds-g-color-palette-green-50, #04844b);
   border-left-width: 5px;
 }
 
 /* Severity-Based Icon Colors */
 .insight-card[data-severity="high"] .insight-icon {
-  color: #c23934;
+  color: var(--slds-g-color-palette-red-40, #c23934);
 }
 
 .insight-card[data-severity="medium"] .insight-icon {
-  color: #fe9339;
+  color: var(--slds-g-color-border-warning-1, #fe9339);
 }
 
 .insight-card[data-severity="low"] .insight-icon {
-  color: #04844b;
+  color: var(--slds-g-color-palette-green-50, #04844b);
 }
 
 /* Default Icon Styling (fallback) */
 .insight-icon {
-  color: #0176d3;
+  color: var(--slds-g-color-brand-base-50, #0176d3);
 }
 
 /* Insight Text */
 .insight-text {
   line-height: 1.6;
-  color: #3e3e3c;
+  color: var(--slds-g-color-on-surface-2, #3e3e3c);
 }
 
 /* Responsive Design */
