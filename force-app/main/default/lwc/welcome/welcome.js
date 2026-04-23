@@ -36,11 +36,11 @@ export default class Welcome extends NavigationMixin(LightningElement) {
             title: 'Your Mental Wellness Companion',
             description: 'Mind Mentor is your personal mental health and wellness companion, designed to help you track your mood, practice mindfulness, and develop healthy habits. Whether you\'re looking to reduce stress, improve your mental clarity, or simply maintain a positive mindset, Mind Mentor provides the tools and guidance you need on your wellness journey.',
             features: [
-                'Mood tracking and journaling',
-                'Guided meditation and breathing exercises',
-                'Personalized wellness insights',
-                'Goal setting and progress monitoring',
-                'Community support and resources'
+                { label: 'Mood tracking and journaling',              icon: 'utility:edit' },
+                { label: 'Guided meditation and breathing exercises', icon: 'utility:heart' },
+                { label: 'Personalized wellness insights',            icon: 'utility:trending' },
+                { label: 'Goal setting and progress monitoring',      icon: 'utility:target' },
+                { label: 'Community support and resources',           icon: 'utility:groups' }
             ]
         };
     }
@@ -54,8 +54,5 @@ export default class Welcome extends NavigationMixin(LightningElement) {
         });
     }
 
-    connectedCallback() {
-        console.log('Welcome component connected');
-        console.log('User:', this.userName);
-    }
+    connectedCallback() {}
 }

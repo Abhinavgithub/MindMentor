@@ -1,29 +1,36 @@
 <!--
-  @description       : 
+  @description       :
   @author            : Abhinav Singh
-  @group             : 
+  @group             :
   @last modified on  : 01-08-2026
   @last modified by  : Abhinav Singh
 -->
 <template>
+    <!-- Landing State -->
     <template if:false={loadAssessment}>
-        <div class="slds-var-p-around_large slds-text-align_center">
-            <lightning-icon icon-name="standard:survey" size="large" class="slds-var-m-bottom_medium"></lightning-icon>
-            <h1 class="slds-text-heading_large slds-var-m-bottom_small">Mental Health Assessment</h1>
-            <p class="slds-text-body_regular slds-var-m-bottom_large">
+        <div class="questionnaire-hero">
+            <div class="questionnaire-hero-icon">
+                <lightning-icon icon-name="standard:survey" size="large"></lightning-icon>
+            </div>
+            <h1 class="questionnaire-heading">Mental Health Assessment</h1>
+            <p class="questionnaire-subtitle">
                 Take a brief questionnaire that provides insights about your mental wellness.
             </p>
-            <lightning-button variant="brand" label="Start Assessment" onclick={startAssesment}></lightning-button>
+            <lightning-button variant="brand" label="Start Assessment" onclick={startAssesment}>
+            </lightning-button>
         </div>
     </template>
-    <template if:true={loadAssessment}>
-        <div class="slds-var-p-around_medium">
-            <h1 class="slds-text-heading_large slds-var-m-bottom_medium slds-text-align_center">Mental Health Assessment
-            </h1>
 
+    <!-- Assessment State -->
+    <template if:true={loadAssessment}>
+        <div class="questionnaire-hero">
+            <h1 class="questionnaire-heading">Mental Health Assessment</h1>
+        </div>
+
+        <div class="slds-var-p-around_medium">
             <!-- Display only the current question -->
             <template if:true={currentQuestion}>
-                <div class="slds-var-m-bottom_large">
+                <div class="question-card slds-var-m-bottom_medium">
                     <template if:true={isQuestionRadio}>
                         <lightning-radio-group key={radioKey} name={currentQuestion.Id}
                             label={currentQuestion.combinedLabel} options={currentQuestion.options}
@@ -36,21 +43,16 @@
                             onchange={handleTextChange} required>
                         </lightning-textarea>
                     </template>
-                    <!-- <template if:true={isQuestionMultiSelect}>
-                        <lightning-checkbox-group name={currentQuestion.Id} label={currentQuestion.combinedLabel}
-                            options={currentQuestion.options} value={currentSelectedAnswer}
-                            onchange={handleCheckboxChange} required>
-                        </lightning-checkbox-group>
-                    </template> -->
                     <template if:true={isQuestionMultiSelect}>
                         <lightning-checkbox-group key={radioKey} name={currentQuestion.Id}
                             label={currentQuestion.combinedLabel} options={currentQuestion.options}
-                            value={currentSelectedAnswer} onchange={handleCheckboxChange}></lightning-checkbox-group>
+                            value={currentSelectedAnswer} onchange={handleCheckboxChange}>
+                        </lightning-checkbox-group>
                     </template>
                 </div>
 
                 <!-- Navigation Buttons -->
-                <div class="slds-grid slds-grid_align-spread slds-var-m-top_large">
+                <div class="nav-area slds-grid slds-grid_align-spread">
                     <div>
                         <lightning-button label="Previous" onclick={handlePrevious} disabled={isFirstQuestion}>
                         </lightning-button>

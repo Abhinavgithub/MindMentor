@@ -1,14 +1,11 @@
 <template>
     <div class="wellness-insights-container slds-var-p-around_medium">
         <!-- Header -->
-        <div class="slds-box slds-theme_shade slds-var-m-bottom_medium">
-            <div class="slds-grid slds-grid_vertical-align-center">
-                <h1 class="slds-text-heading_large header-title">
-                    <lightning-icon icon-name="utility:heart" size="small"
-                        class="slds-var-m-right_x-small"></lightning-icon>
-                    {label.insights}
-                </h1>
+        <div class="insights-hero slds-var-m-bottom_medium">
+            <div class="insights-hero-icon">
+                <lightning-icon icon-name="utility:heart" size="medium"></lightning-icon>
             </div>
+            <h1 class="insights-heading">{label.insights}</h1>
         </div>
 
         <!-- Loading State -->
