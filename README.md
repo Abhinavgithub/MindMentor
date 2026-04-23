@@ -98,7 +98,7 @@ A fully themed Salesforce Experience Cloud LWR site with personalized welcome pa
 
 ## Data Model
 
-All custom objects use the `MM_` prefix.
+Most custom objects use the `MM_` prefix. `Scoring_Rule__c` is an exception — it has no namespace prefix.
 
 ```
 MM_Questionnaire__c
@@ -125,7 +125,7 @@ MM_Response_Session__c          (linked to Contact via MM_User__c)
         MM_Question__c, MM_Question_Option__c
 ```
 
-**User identity:** Community users are resolved via `User.ContactId`. All queries use `userId → contactId` before accessing session data.
+**User identity:** Most controllers resolve community users via `User.ContactId` before querying session data. Exception: `AgentUtilities.getResponseSession` filters `MM_Response_Session__c.MM_User__c` directly with the provided `userId`.
 
 ---
 
