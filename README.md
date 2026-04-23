@@ -105,8 +105,8 @@ MM_Questionnaire__c
 │   MM_Is_Active__c (Boolean)
 │
 ├── MM_Question__c
-│   │   MM_Question_Text__c, MM_Type__c (Multiple Choice | Yes/No | Multiple Select | Text)
-│   │   MM_Order__c, MM_Weight__c, MM_Is_Crisis__c
+│   │   MM_QuestionText__c, MM_Type__c (Multiple Choice | Yes/No | Multiple Select | Text)
+│   │   MM_Order__c, MM_Weight__c, MM_Crisis_Flag__c
 │   │
 │   └── MM_Question_Option__c
 │           MM_Option_Text__c, MM_Score__c
@@ -287,7 +287,7 @@ ResponseSessionTrigger
 ## Security Model
 
 - All Apex classes are declared `public with sharing`.
-- All SOQL uses `Database.queryWithBinds(query, bindVars, AccessLevel.USER_MODE)` — no inline string concatenation with user-controlled input.
+- SOQL enforces user-mode access on every query, using one of two patterns: `Database.queryWithBinds(query, bindVars, AccessLevel.USER_MODE)` (most classes) or inline SOQL with `WITH USER_MODE` (`AgentUtilities`). Neither pattern allows inline string concatenation with user-controlled input.
 - Most DML uses `Database.insert/update/delete(..., AccessLevel.USER_MODE)` to enforce FLS. Exception: `ResponseSessionService.updateTotalScoreAndSummary()` uses a bare `update` statement (system-mode DML) when writing the score and summary back to the session record after trigger execution.
 - Sharing rules are enforced on all operations via `with sharing`.
 
