@@ -109,7 +109,7 @@ MM_Questionnaire__c
 │   │   MM_Order__c, MM_Weight__c, MM_Crisis_Flag__c
 │   │
 │   └── MM_Question_Option__c
-│           MM_Option_Text__c, MM_Score__c
+│           MM_Option_Text__c, MM_Score_Value__c
 │
 └── Scoring_Rule__c
         MM_Min_Score__c, MM_Max_Score__c, MM_Summary_Text__c, MM_Action_Recommendation__c
@@ -119,10 +119,10 @@ MM_Response_Session__c          (linked to Contact via MM_User__c)
 │   MM_Total_Score__c, MM_Summary__c, MM_Start_Time__c, MM_End_Time__c
 │
 ├── MM_User_Response__c          (single-select and text answers)
-│       MM_Question__c, MM_Selected_Option__c, MM_Response_Text__c
+│       MM_Question__c, MM_Selected_Option__c, MM_Answer_Text__c
 │
 └── MM_User_Response_Options__c  (multi-select answers — one record per option)
-        MM_Question__c, MM_Selected_Option__c
+        MM_Question__c, MM_Question_Option__c
 ```
 
 **User identity:** Community users are resolved via `User.ContactId`. All queries use `userId → contactId` before accessing session data.
@@ -193,7 +193,7 @@ sf project deploy start --source-dir force-app --test-level RunLocalTests
 ### 6. Post-deployment configuration
 
 1. **Experience Cloud site** — Create an LWR Experience Cloud site and add the LWC components to the relevant pages.
-2. **Assign permission sets** — Grant the `Mind Mentor Community User` profile access to the Experience Cloud site.
+2. **Assign profile** — Grant the `Mind Mentor Community User` profile access to the Experience Cloud site. This profile is included in the repo metadata (`force-app/main/default/profiles/`).
 3. **Prompt Templates** — Create and activate the two Einstein Prompt Templates (`Calculate_User_Score_and_Summary` and `Generate_Wellness_Insights`) in Prompt Builder. Ensure they are connected to the correct input fields.
 4. **Agentforce agent** — Configure the Agentforce agent and connect `AgentUtilities.getResponseSession` as a data action.
 5. **Questionnaire data** — Insert at least one active `MM_Questionnaire__c` record with associated `MM_Question__c` and `MM_Question_Option__c` records.
