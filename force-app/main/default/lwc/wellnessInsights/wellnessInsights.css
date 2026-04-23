@@ -3,17 +3,36 @@
   position: relative;
 }
 
+/* Hero Banner — matches welcome component */
+.insights-hero {
+  background: linear-gradient(135deg, #fbeee6 0%, #f5f7fa 100%);
+  border-bottom: 3px solid #FF8833;
+  border-radius: 8px;
+  padding: 2rem;
+  text-align: center;
+  animation: heroFadeIn 0.6s ease-out;
+}
+
+.insights-hero-icon {
+  margin-bottom: 0.5rem;
+  color: #FF4136;
+}
+
+/* Heading with gradient text — matches welcome-greeting */
+.insights-heading {
+  font-size: var(--slds-g-font-scale-6, 2rem);
+  font-weight: var(--slds-g-font-weight-7, 700);
+  background: linear-gradient(90deg, #FF4136, #FF8833);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin: 0.25rem 0 0;
+}
+
 /* Loading State - Contained within component */
 .loading-container {
   position: relative;
   min-height: 200px;
-}
-
-/* Header Title Styling - Bold and Larger */
-.header-title {
-  font-weight: var(--slds-g-font-weight-7, 700) !important;
-  font-size: var(--slds-g-font-scale-4, 1.5rem) !important;
-  line-height: var(--slds-g-font-line-height-2, 1.25);
 }
 
 /* Insights Grid Layout */
@@ -26,15 +45,16 @@
 
 /* Base Insight Card Styling */
 .insight-card {
-  background: linear-gradient(135deg, #ffffff 0%, #f3f3f3 100%);
+  background: var(--slds-g-color-surface-1, #ffffff);
   border-left: 4px solid var(--slds-g-color-brand-base-50, #0176d3);
-  transition: all 0.3s ease;
+  border-radius: 8px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
   cursor: default;
 }
 
 .insight-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 /* Severity-Based Border Colors */
@@ -82,33 +102,29 @@
   .insights-grid {
     grid-template-columns: 1fr;
   }
+  .insights-hero {
+    padding: 1.5rem 1rem;
+  }
 }
 
-/* Animation for loading state */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+/* Animations */
+@keyframes heroFadeIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes cardFadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 .insight-card {
-  animation: fadeIn 0.5s ease-in-out;
+  animation: cardFadeIn 0.4s ease-out both;
 }
 
 /* Stagger animation for cards */
-.insight-card:nth-child(1) {
-  animation-delay: 0.1s;
-}
-
-.insight-card:nth-child(2) {
-  animation-delay: 0.2s;
-}
-
-.insight-card:nth-child(3) {
-  animation-delay: 0.3s;
-}
+.insight-card:nth-child(1) { animation-delay: 0.1s; }
+.insight-card:nth-child(2) { animation-delay: 0.15s; }
+.insight-card:nth-child(3) { animation-delay: 0.2s; }
+.insight-card:nth-child(4) { animation-delay: 0.25s; }
+.insight-card:nth-child(5) { animation-delay: 0.3s; }
