@@ -112,7 +112,7 @@ MM_Questionnaire__c
 │           MM_Option_Text__c, MM_Score__c
 │
 └── Scoring_Rule__c
-        MM_Min_Score__c, MM_Max_Score__c, MM_Summary__c, MM_Action__c
+        MM_Min_Score__c, MM_Max_Score__c, MM_Summary_Text__c, MM_Action_Recommendation__c
 
 MM_Response_Session__c          (linked to Contact via MM_User__c)
 │   MM_Status__c (In Progress | Completed)
@@ -244,15 +244,16 @@ sf org open
 
 ```
 force-app/main/default/
-├── classes/MindMentor/
-│   ├── QuestionnaireController.cls        # @AuraEnabled methods for questionnaire LWC
-│   ├── WellnessInsightsController.cls     # @AuraEnabled method for insights LWC
-│   ├── WellnessInsightsService.cls        # Calls Generate_Wellness_Insights prompt template
-│   ├── CalculateTotalScoreAndSummary.cls  # Calls Calculate_User_Score_and_Summary prompt template
-│   ├── ResponseSessionService.cls         # Called by trigger on session completion
-│   ├── AgentUtilities.cls                 # Data layer for Agentforce agent
+├── classes/
 │   ├── TriggerHandler.cls                 # Base handler class (virtual)
-│   └── ResponseSessionTriggerHandler.cls  # Wires afterUpdate to ResponseSessionService
+│   ├── ResponseSessionTriggerHandler.cls  # Wires afterUpdate to ResponseSessionService
+│   └── MindMentor/
+│       ├── QuestionnaireController.cls        # @AuraEnabled methods for questionnaire LWC
+│       ├── WellnessInsightsController.cls     # @AuraEnabled method for insights LWC
+│       ├── WellnessInsightsService.cls        # Calls Generate_Wellness_Insights prompt template
+│       ├── CalculateTotalScoreAndSummary.cls  # Calls Calculate_User_Score_and_Summary prompt template
+│       ├── ResponseSessionService.cls         # Called by trigger on session completion
+│       └── AgentUtilities.cls                 # Data layer for Agentforce agent
 ├── triggers/
 │   └── ResponseSessionTrigger.trigger     # One trigger on MM_Response_Session__c
 ├── lwc/
