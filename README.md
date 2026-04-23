@@ -116,7 +116,7 @@ MM_Questionnaire__c
 
 MM_Response_Session__c          (linked to Contact via MM_User__c)
 │   MM_Status__c (In Progress | Completed)
-│   MM_Score__c, MM_Summary__c, MM_Start_Time__c, MM_End_Time__c
+│   MM_Total_Score__c, MM_Summary__c, MM_Start_Time__c, MM_End_Time__c
 │
 ├── MM_User_Response__c          (single-select and text answers)
 │       MM_Question__c, MM_Selected_Option__c, MM_Response_Text__c
@@ -288,8 +288,8 @@ ResponseSessionTrigger
 
 - All Apex classes are declared `public with sharing`.
 - All SOQL uses `Database.queryWithBinds(query, bindVars, AccessLevel.USER_MODE)` — no inline string concatenation with user-controlled input.
-- All DML uses `Database.insert/update/delete(..., AccessLevel.USER_MODE)`.
-- Sharing rules and FLS are enforced at the database level on every operation.
+- Most DML uses `Database.insert/update/delete(..., AccessLevel.USER_MODE)` to enforce FLS. Exception: `ResponseSessionService.updateTotalScoreAndSummary()` uses a bare `update` statement (system-mode DML) when writing the score and summary back to the session record after trigger execution.
+- Sharing rules are enforced on all operations via `with sharing`.
 
 ---
 
